@@ -13,6 +13,9 @@ import { el } from './dom.js';
 import { STEPS, getVisibleSteps, isStepRequired, isFieldVisible } from '../schema/index.js';
 import { getAnswers } from './state.js';
 import { strings } from '../strings.js';
+import { generateAllFiles } from '../generators/index.js';
+import { openPrintView } from '../generators/print.js';
+import { getCurrentVersion } from '../generators/version.js';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -265,17 +268,79 @@ export function renderReviewScreen({ onEditStep }) {
   root.appendChild(renderScopeSummary(scope));
   if (decisionItems.length) root.appendChild(renderDecisionMakerGroup(decisionItems));
 
-  const generateBtn = el('button', {
-    class: 'btn btn--primary btn--large',
-    onclick: () => {
-      // Generators land in Step 5 — this keeps the review screen fully
-      // demonstrable without pretending files actually come out yet.
-      alert('إنشاء الملفات غير مفعّل بعد — سيُضاف في الخطوة القادمة (المولّدات).');
-    },
-  }, strings.nav.finish);
+  const downloadArea = el('div', { class: 'download-screen', hidden: true });
+  const generateBtn = el('button', { class: 'btn btn--primary btn--large' }, strings.nav.finish);
+  generateBtn.addEventListener('click', async () => {
+    generateBtn.disabled = true;
+    generateBtn.textContent = 'جارٍ الإنشاء…';
+    try {
+      const result = await generateAllFiles(getAnswers());
+      downloadArea.replaceChildren(renderDownloadScreen(result, getAnswers()));
+      downloadArea.hidden = false;
+      generateBtn.hidden = true;
+    } finally {
+      generateBtn.disabled = false;
+      generateBtn.textContent = strings.nav.finish;
+    }
+  });
   root.appendChild(generateBtn);
+  root.appendChild(downloadArea);
 
   return root;
+}
+
+function renderDownloadScreen(result, answers) {
+  const wrap = el('div', { class: 'download-screen__inner' });
+  wrap.appendChild(el('h2', {}, strings.generatedFiles.titleAr));
+  wrap.appendChild(
+    el('p', { class: 'download-screen__version' }, strings.generatedFiles.versionLabelAr.replace('{version}', result.version).replace('{date}', new Date().toLocaleString('ar-SA'))),
+  );
+
+  const files = el('div', { class: 'download-files' });
+
+  // The ZIP goes first and bigger — clients forget the attachment, so the
+  // layout has to fight that, per the spec's GENERATED FILES section.
+  if (result.zip) {
+    files.appendChild(
+      el('div', { class: 'download-file download-file--zip' }, [
+        el('strong', {}, `📦 ${result.zip.filename}`),
+        el('p', {}, strings.generatedFiles.zipCalloutAr),
+        el('small', {}, `${result.zip.imageCount} صورة · ${(result.zip.size / 1024 / 1024).toFixed(1)}MB`),
+      ]),
+    );
+  }
+
+  if (result.xlsx) {
+    files.appendChild(
+      el('div', { class: 'download-file' }, [
+        el('strong', {}, `📊 ${result.xlsx.filename}`),
+        el('p', {}, 'يحتوي كل إجاباتك، بما فيها صفحة كلمات المرور القابلة للتعبئة.'),
+      ]),
+    );
+  } else {
+    files.appendChild(el('div', { class: 'download-file download-file--error' }, strings.generatedFiles.docxFailedAr));
+  }
+
+  const pdfBtn = el('button', {
+    type: 'button',
+    class: 'btn btn--secondary',
+    onclick: () => openPrintView(answers, getCurrentVersion()),
+  }, 'فتح نافذة الطباعة (اختر "حفظ كـ PDF")');
+  files.appendChild(el('div', { class: 'download-file' }, [el('strong', {}, '📄 ملخّص PDF للمراجعة'), pdfBtn]));
+
+  wrap.appendChild(files);
+
+  if (result.errors.length) {
+    wrap.appendChild(
+      el(
+        'div',
+        { class: 'banner banner--warning' },
+        result.errors.map((e) => el('p', {}, `تعذّر إنشاء ${e.type}: باقي الملفات جاهزة ويمكنك المتابعة.`)),
+      ),
+    );
+  }
+
+  return wrap;
 }
 
 function renderStepLights(perStep, onEditStep) {

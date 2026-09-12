@@ -12,6 +12,12 @@ import { strings } from '../strings.js';
 import { FILE_ASSET_TYPES } from '../schema/steps/shared-steps.js';
 import { CERTIFICATE_TYPES, CREDENTIAL_SERVICES } from '../schema/constants.js';
 import { deleteImagesForRow } from '../media/store.js';
+import { deriveIdentifiedServices, deriveMigratingMailboxRows, mergeDerivedRows } from '../generators/deriveCredentials.js';
+
+const AUTO_ROWS = {
+  identified_services: { derive: deriveIdentifiedServices, matchKey: 'service' },
+  mailboxes_marked_migrate: { derive: deriveMigratingMailboxRows, matchKey: 'email' },
+};
 
 const PREFILLED_FROM = {
   CERTIFICATE_TYPES: { list: CERTIFICATE_TYPES, seedColumn: 'document_type' },
@@ -54,6 +60,13 @@ export function renderTableField(field) {
   if (getRows(field.id).length === 0) {
     const seeded = seedPrefilledRows(field);
     if (seeded.length) setRows(field.id, seeded);
+  }
+
+  if (field.autoRows && AUTO_ROWS[field.autoRows]) {
+    const { derive, matchKey } = AUTO_ROWS[field.autoRows];
+    const derived = derive(getAnswers()).map((r) => ({ ...emptyRow(field), ...r }));
+    const merged = mergeDerivedRows(getRows(field.id), derived, matchKey);
+    if (merged.length !== getRows(field.id).length) setRows(field.id, merged);
   }
 
   if (field.pasteHelper) wrapper.appendChild(renderPasteEmailsHelper(field, () => renderRows()));

@@ -367,6 +367,38 @@ ul { margin: 0; padding-inline-start: 1.25rem; }
 .is-pending { color: var(--warn); }
 .is-answered { color: var(--ink-muted); text-decoration: line-through; }
 
+/* ---------- download screen ---------- */
+.download-screen__version { color: var(--ink-muted); font-size: 0.9rem; margin-bottom: var(--space-4); }
+.download-files { display: flex; flex-direction: column; gap: var(--space-3); }
+.download-file { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: var(--space-4); }
+.download-file strong { display: block; margin-bottom: var(--space-1); word-break: break-all; }
+.download-file--zip { border: 2px solid var(--brand); background: rgba(31, 78, 120, 0.05); padding: var(--space-6); font-size: 1.05rem; }
+.download-file--error { border-color: var(--warn); background: var(--warn-bg); color: var(--warn); }
+
+/* ---------- print / pdf ---------- */
+/* generators/print.js builds the real report into #print-root and calls
+   window.print() — jsPDF is explicitly banned per spec (bad Arabic
+   shaping), so the browser's own — correct — text engine does the work.
+   Everything else on the page is hidden for the duration of printing. */
+#print-root { display: none; }
+@media print {
+  body > *:not(#print-root) { display: none !important; }
+  #print-root {
+    display: block !important;
+    direction: rtl;
+    font-family: 'Cairo', 'Tahoma', sans-serif;
+    color: #000;
+  }
+  .print-cover { text-align: center; margin-bottom: 2rem; page-break-after: always; }
+  .print-section { margin-bottom: 1.5rem; page-break-inside: avoid; }
+  .print-table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; font-size: 0.85rem; }
+  .print-table th, .print-table td { border: 1px solid #999; padding: 0.35rem 0.5rem; text-align: right; vertical-align: top; }
+  .print-table th { background: #eee; }
+  .print-table tr.is-unknown { color: #b3261e; }
+  .print-scope-cols { display: flex; gap: 2rem; }
+  .print-scope-cols > div { flex: 1; }
+}
+
 /* ---------- responsive ---------- */
 @media (max-width: 768px) {
   .wizard-layout { flex-direction: column; padding-inline: var(--space-3); }

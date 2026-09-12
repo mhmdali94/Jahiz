@@ -48,6 +48,28 @@ export async function compressImage(file, { maxDimension = 1200, quality = 0.8 }
   return { blob, originalWidth, originalHeight };
 }
 
+/**
+ * The ZIP's web/ folder — same photo, WebP, max 1600px, ready to upload to
+ * the live site. Built at export time (zip.js) from the stored original
+ * rather than kept as a third IndexedDB blob per image.
+ */
+export async function convertToWebP(blob, { maxDimension = 1600 } = {}) {
+  const bitmap = await createImageBitmap(blob);
+  const scale = Math.min(1, maxDimension / Math.max(bitmap.width, bitmap.height));
+  const width = Math.max(1, Math.round(bitmap.width * scale));
+  const height = Math.max(1, Math.round(bitmap.height * scale));
+  const canvas = typeof OffscreenCanvas !== 'undefined' ? new OffscreenCanvas(width, height) : document.createElement('canvas');
+  if (!(canvas instanceof OffscreenCanvas)) {
+    canvas.width = width;
+    canvas.height = height;
+  }
+  canvas.getContext('2d').drawImage(bitmap, 0, 0, width, height);
+  bitmap.close?.();
+  return 'convertToBlob' in canvas
+    ? canvas.convertToBlob({ type: 'image/webp', quality: 0.85 })
+    : new Promise((resolve) => canvas.toBlob(resolve, 'image/webp', 0.85));
+}
+
 /** Reads just the pixel dimensions, for files we don't compress (svg/pdf don't reach here). */
 export async function readImageDimensions(file) {
   const bitmap = await createImageBitmap(file);

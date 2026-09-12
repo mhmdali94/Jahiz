@@ -82,9 +82,12 @@ export function renderUploadField(column, slot, context) {
         height = dims.height;
       }
       // application/pdf: no raster dimensions, previewBlob stays the pdf itself.
-    } catch {
+    } catch (err) {
       // A corrupt/unreadable image shouldn't stop the rest of the batch —
       // fall back to storing the original untouched as its own "preview".
+      // Logged (not shown to the client, per "no size limits and no
+      // warnings") so a genuine decode failure doesn't disappear silently.
+      console.warn('Jahiz: could not compress', file.name, '—', err);
       previewBlob = file;
     }
 
