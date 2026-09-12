@@ -11,6 +11,7 @@ import { isFieldVisible } from '../schema/index.js';
 import { strings } from '../strings.js';
 import { FILE_ASSET_TYPES } from '../schema/steps/shared-steps.js';
 import { CERTIFICATE_TYPES, CREDENTIAL_SERVICES } from '../schema/constants.js';
+import { deleteImagesForRow } from '../media/store.js';
 
 const PREFILLED_FROM = {
   CERTIFICATE_TYPES: { list: CERTIFICATE_TYPES, seedColumn: 'document_type' },
@@ -119,11 +120,12 @@ function renderRow(field, row, index, rerender) {
       tr.appendChild(td);
       continue;
     }
+    const opts = col.type === 'upload' ? { uploadContext: buildUploadContext(field, col, row) } : {};
     const control = createControl(col, row[col.id], (value) => {
       const rows = getRows(field.id);
       rows[index] = { ...rows[index], [col.id]: value };
       setRows(field.id, rows);
-    });
+    }, opts);
     td.appendChild(control);
     tr.appendChild(td);
   }
@@ -134,6 +136,9 @@ function renderRow(field, row, index, rerender) {
       class: 'icon-btn',
       title: strings.nav.duplicateRow,
       onclick: () => {
+        // A duplicated row starts with no images of its own — the copy
+        // gets a fresh _rowId, and uploaded images are keyed to the
+        // original row's id, so there's nothing to carry over anyway.
         const rows = getRows(field.id);
         rows.splice(index + 1, 0, { ...row, _rowId: newRowId() });
         setRows(field.id, rows);
@@ -148,12 +153,34 @@ function renderRow(field, row, index, rerender) {
         const rows = getRows(field.id);
         rows.splice(index, 1);
         setRows(field.id, rows);
+        deleteImagesForRow(field.id, row._rowId); // fire-and-forget cleanup, don't block the UI on it
         rerender();
       },
     }, '×'),
   ]);
   tr.appendChild(actions);
   return tr;
+}
+
+/**
+ * Context an UPLOAD column's renderer needs to compute a live filename
+ * preview (see upload.js) — resolved fresh via getRowInfo() rather than
+ * captured once, since the row's index/name can change after this cell
+ * was first rendered.
+ */
+function buildUploadContext(field, col, row) {
+  return {
+    fieldId: field.id,
+    columnId: col.id,
+    rowId: row._rowId,
+    zipPathTemplate: col.zipPath,
+    getRowInfo: () => {
+      const rows = getRows(field.id);
+      const idx = rows.findIndex((r) => r._rowId === row._rowId);
+      const itemName = field.itemNameColumn ? rows[idx]?.[field.itemNameColumn] : '';
+      return { rowIndex: idx + 1, itemName };
+    },
+  };
 }
 
 function renderPasteEmailsHelper(field, rerender) {

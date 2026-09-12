@@ -193,7 +193,7 @@ export const stepB2AlbumsLeadership = {
         column('display_order', 'الترتيب', 'Display order', FIELD_TYPES.NUMBER),
         column('images', 'الصور', 'Images', FIELD_TYPES.UPLOAD, { zipPath: 'albums/{album-slug}/' }),
       ],
-      { prefilledOptions: ALBUM_PRESETS },
+      { prefilledOptions: ALBUM_PRESETS, itemNameColumn: 'name' },
     ),
 
     note('leadership_group', 'الإدارة والهيكل التنظيمي', 'Leadership & org structure'),
@@ -217,6 +217,7 @@ export const stepB2AlbumsLeadership = {
           flagsReview: 'leadership_consent_missing',
         }),
       ],
+      { itemNameColumn: 'name' },
     ),
   ],
 };
@@ -305,6 +306,7 @@ export const stepB4Services = {
         column('key_features', 'المميزات', 'Key features', FIELD_TYPES.TEXTAREA),
         column('images', 'صور', 'Images', FIELD_TYPES.UPLOAD, { zipPath: 'services/' }),
       ],
+      { itemNameColumn: 'name' },
     ),
   ],
 };
@@ -341,6 +343,7 @@ export const stepB5Products = {
         column('pdf_catalog_link', 'رابط كتالوج PDF', 'PDF catalog link', FIELD_TYPES.URL),
         column('notes', 'ملاحظات', 'Notes', FIELD_TYPES.TEXTAREA),
       ],
+      { itemNameColumn: 'name' },
     ),
   ],
 };
@@ -369,6 +372,7 @@ export const stepB6Brands = {
         column('logo', 'شعار', 'Logo', FIELD_TYPES.UPLOAD, { zipPath: 'brands/' }),
         column('notes', 'ملاحظات', 'Notes', FIELD_TYPES.TEXTAREA),
       ],
+      { itemNameColumn: 'name' },
     ),
   ],
 };
@@ -404,7 +408,7 @@ export const stepB7Credentials = {
         column('file', 'الملف', 'File', FIELD_TYPES.UPLOAD, { zipPath: 'certificates/' }),
         column('notes', 'ملاحظات', 'Notes', FIELD_TYPES.TEXTAREA),
       ],
-      { prefilledFrom: 'CERTIFICATE_TYPES' },
+      { prefilledFrom: 'CERTIFICATE_TYPES', itemNameColumn: 'document_type' },
     ),
   ],
 };
@@ -437,6 +441,7 @@ export const stepB8Projects = {
         column('client_name_publishable', 'نشر اسم العميل؟', 'Is client name publishable?', FIELD_TYPES.RADIO, { options: YES_NO }),
         column('notes', 'ملاحظات', 'Notes', FIELD_TYPES.TEXTAREA),
       ],
+      { itemNameColumn: 'name' },
     ),
   ],
 };

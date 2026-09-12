@@ -182,7 +182,7 @@ export const stepFilesAssets = {
         column('link', 'أو رابط خارجي', 'Or an external link', FIELD_TYPES.URL),
         column('notes', 'ملاحظات', 'Notes', FIELD_TYPES.TEXTAREA),
       ],
-      { prefilledFrom: 'FILE_ASSET_TYPES' },
+      { prefilledFrom: 'FILE_ASSET_TYPES', itemNameColumn: 'file_type' },
     ),
   ],
 };

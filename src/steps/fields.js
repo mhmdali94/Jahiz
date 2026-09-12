@@ -220,7 +220,7 @@ export function createControl(spec, current, onChange, opts = {}) {
 
   if (spec.type === FIELD_TYPES.UPLOAD) {
     const slot = el('div', { class: 'field__input-slot' });
-    renderUploadField(spec, slot);
+    renderUploadField(spec, slot, opts.uploadContext);
     return slot;
   }
 
