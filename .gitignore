@@ -1,0 +1,14 @@
+node_modules/
+dist/
+
+# Throwaway Arabic-rendering validation script + its output — see Step 2
+# of HOW TO WORK. Not part of the deliverable tree.
+scratch/
+
+# CLI secrets — the signing key and issued-serial ledger never get committed
+cli/serials.json
+cli/*.key
+cli/private-key*
+
+.DS_Store
+*.log

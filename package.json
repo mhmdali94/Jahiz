@@ -1,0 +1,22 @@
+{
+  "name": "jahiz",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Arabic (RTL) client onboarding wizard — static, no backend.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@noble/ed25519": "^2.1.0",
+    "docx": "^9.1.1",
+    "exceljs": "^4.4.0",
+    "idb": "^8.0.0",
+    "jszip": "^3.10.1"
+  },
+  "devDependencies": {
+    "vite": "^6.0.7"
+  }
+}
