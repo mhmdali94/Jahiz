@@ -50,9 +50,12 @@ function styleHeaderRow(row) {
 
 function addTitleAndBanner(ws, titleAr, titleEn, answers, version) {
   const projectTypeAr = PROJECT_TYPE_LIST.find((t) => t.value === answers.project_type)?.ar || 'غير محدد';
+  // __token_id isn't a real question (see main.js applyTokenPrefill) — just
+  // carried along so a returned file says which client link produced it.
+  const tokenSuffix = answers.__token_id ? `    |    رابط رقم: ${answers.__token_id}` : '';
   ws.addRow([`${titleAr} / ${titleEn}`]);
   ws.getRow(1).font = { bold: true, size: 14 };
-  ws.addRow([`نوع المشروع: ${projectTypeAr}    |    ${answers.company_name_ar || ''}    |    نسخة ${version} — ${new Date().toLocaleDateString('en-CA')}`]);
+  ws.addRow([`نوع المشروع: ${projectTypeAr}    |    ${answers.company_name_ar || ''}    |    نسخة ${version} — ${new Date().toLocaleDateString('en-CA')}${tokenSuffix}`]);
   ws.getRow(2).font = { italic: true, color: { argb: 'FF5B6572' } };
   ws.addRow([]);
 }
