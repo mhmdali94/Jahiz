@@ -181,8 +181,6 @@ export const stepB2AlbumsLeadership = {
   optional: true,
   skippable: true,
   fields: [
-    note('step_optional_note', 'هذه الخطوة اختيارية بالكامل — يمكنك تخطّيها بضغطة واحدة.', 'This step is fully optional — skip it in one click.'),
-
     note('albums_group', 'ألبومات الصور', 'Photo albums'),
     table(
       'photo_albums',

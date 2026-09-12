@@ -522,7 +522,11 @@ export const stepA8Cutover = {
   appliesTo: ['migration', 'redesign', 'email'],
   requiredFor: ['migration', 'email'],
   fields: [
-    field('cutover_window', 'الوقت المفضّل لنافذة التوقف', 'Preferred downtime window (date & time)', FIELD_TYPES.TEXT),
+    field('golive_date', 'تاريخ الإطلاق المستهدف', 'Target go-live date', FIELD_TYPES.DATE, {
+      required: true,
+      helpAr: 'التاريخ الفعلي الذي يجب أن يعمل فيه كل شيء — يُستخدم لمقارنته بتاريخ انتهاء عقد المزوّد الحالي.',
+    }),
+    field('cutover_window', 'الوقت المفضّل لنافذة التوقف (اليوم والساعة)', 'Preferred downtime window (time of day)', FIELD_TYPES.TEXT),
     field('blackout_dates', 'أيام أو أوقات ممنوع فيها العمل', 'Blackout dates or times', FIELD_TYPES.TEXTAREA),
     field('acceptable_downtime_minutes', 'المدة المقبولة للتوقف بالدقائق', 'Acceptable downtime in minutes', FIELD_TYPES.NUMBER),
     field('golive_approver', 'من يعتمد الإطلاق النهائي؟', 'Who gives final go-live approval?', FIELD_TYPES.TEXT, {
