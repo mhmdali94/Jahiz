@@ -1,0 +1,20 @@
+# Real, enforced CSP header — the <meta> tag in index.html is only a
+# fallback. CyberPanel's OpenLiteSpeed reads .htaccess (Apache-compatible
+# rewrite/headers subset enabled by default per vhost), so dropping this
+# file into public_html alongside the rest of dist/ is enough — no admin
+# panel access needed. connect-src 'none' is the load-bearing part: it makes
+# the browser itself refuse every fetch/XHR/WebSocket/beacon, so even a bug
+# or an injected script cannot send anything out.
+<IfModule mod_headers.c>
+  Header set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'none'; form-action 'none'; frame-src 'none'; object-src 'none'; base-uri 'none';"
+</IfModule>
+
+# Static single-page app — no server-side routing needed, but keep direct
+# deep links (e.g. reloading mid-session) resolving to index.html.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /index.html [L]
+</IfModule>
