@@ -8,6 +8,11 @@
 // better wizard flow but are one sheet's worth of content) — see
 // SHEET_MAP below for the authoritative mapping.
 
+// Note: ExcelJS's own bundle (this bare specifier resolves to its declared
+// "browser" build either way) bakes in a generic RSA/DSA/EC PEM parser for
+// its encrypted-workbook feature, which this app never calls — see the
+// README's acceptance-check notes for why `grep PRIVATE dist/` matches
+// that library code and not any real secret.
 import ExcelJS from 'exceljs';
 import { getVisibleSteps, isStepVisible, getStepById } from '../schema/index.js';
 import { prepareStepModel } from './prepareModel.js';

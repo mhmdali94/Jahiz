@@ -12,6 +12,7 @@ import { renderField } from './fields.js';
 import { renderTableField } from './table.js';
 import { renderReviewScreen } from './review.js';
 import { scheduleSave, saveNow, loadDraft, clearDraft, getLastSaved, detectPrivateMode, requestPersistentStorage } from './autosave.js';
+import { renderDraftPanel, renderMissingImagesBannerIfAny, SKIP_DRAFT_PROMPT_KEY } from './draftPanel.js';
 import { strings } from '../strings.js';
 
 const FIELD_TYPES_TABLE = 'table';
@@ -35,12 +36,31 @@ export async function mountApp(appRoot) {
     requestPersistentStorage();
   }
 
+  const skipPrompt = sessionStorage.getItem(SKIP_DRAFT_PROMPT_KEY);
+  if (skipPrompt) sessionStorage.removeItem(SKIP_DRAFT_PROMPT_KEY);
+
   if (draft && Object.keys(draft.answers).length) {
-    renderDraftPrompt(draft);
+    if (skipPrompt) {
+      // The client just explicitly imported this draft (see draftPanel.js)
+      // — asking "continue where you left off?" right after would be a
+      // redundant, confusing second prompt for the same action.
+      continueWithDraft(draft);
+    } else {
+      renderDraftPrompt(draft);
+    }
   } else {
     startWizardShell();
     render();
   }
+}
+
+function continueWithDraft(draft) {
+  replaceAnswers(draft.answers);
+  startWizardShell();
+  const visibleSteps = getVisibleSteps(getAnswers());
+  const firstIncomplete = visibleSteps.findIndex((step) => stepStatus(step, getAnswers()) !== 'complete');
+  currentStepIndex = firstIncomplete === -1 ? 0 : firstIncomplete;
+  render();
 }
 
 function renderDraftPrompt(draft) {
@@ -51,13 +71,8 @@ function renderDraftPrompt(draft) {
       el('button', {
         class: 'btn btn--primary',
         onclick: () => {
-          replaceAnswers(draft.answers);
           box.remove();
-          startWizardShell();
-          const visibleSteps = getVisibleSteps(getAnswers());
-          const firstIncomplete = visibleSteps.findIndex((step) => stepStatus(step, getAnswers()) !== 'complete');
-          currentStepIndex = firstIncomplete === -1 ? 0 : firstIncomplete;
-          render();
+          continueWithDraft(draft);
         },
       }, strings.autosave.continueDraft),
       el('button', {
@@ -84,6 +99,9 @@ function startWizardShell() {
   stepBodyEl = el('div', { class: 'wizard-step' });
   footerEl = el('footer', { class: 'wizard-footer' });
   saveIndicatorEl = el('span', { class: 'save-indicator' });
+
+  const missingImagesBanner = renderMissingImagesBannerIfAny();
+  if (missingImagesBanner) root.appendChild(missingImagesBanner);
 
   main.appendChild(progressEl);
   main.appendChild(stepBodyEl);
@@ -160,6 +178,7 @@ function renderSidebar(visibleSteps, answers) {
   });
   sidebarEl.appendChild(el('button', { class: 'sidebar-toggle', 'aria-label': 'القائمة' }, '☰'));
   sidebarEl.appendChild(list);
+  sidebarEl.appendChild(renderDraftPanel());
   sidebarEl.querySelector('.sidebar-toggle').addEventListener('click', () => sidebarEl.classList.toggle('is-open'));
 }
 

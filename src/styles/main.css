@@ -130,6 +130,13 @@ ul { margin: 0; padding-inline-start: 1.25rem; }
 .sidebar-list__item--partial .sidebar-list__dot { background: #d9a441; }
 .sidebar-list__item.is-active .sidebar-list__dot { background: #fff; }
 
+.draft-panel { margin-top: var(--space-6); padding-top: var(--space-4); border-top: 1px solid var(--border); }
+.draft-panel h3 { font-size: 0.9rem; color: var(--ink-muted); margin-bottom: var(--space-2); }
+.draft-panel__row { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-2); }
+.draft-panel__merge { margin-top: var(--space-2); padding: var(--space-3); background: var(--note-bg); border-radius: var(--radius-sm); display: flex; flex-direction: column; gap: var(--space-2); }
+.draft-panel__summary { font-size: 0.85rem; }
+.draft-panel__error { color: var(--danger); font-size: 0.85rem; }
+
 .wizard-main { flex: 1; min-width: 0; }
 
 .progress-bar { height: 6px; background: var(--border); border-radius: 999px; overflow: hidden; margin-bottom: var(--space-6); }

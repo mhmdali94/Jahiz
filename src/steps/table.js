@@ -104,9 +104,29 @@ export function renderTableField(field) {
 
   renderRows();
 
+  // A column's own `visibleWhen` (e.g. the passwords step's password/
+  // app_password columns, gated on password_entry_opt_in) only gets
+  // evaluated when a row is built. Toggling that field fires the global
+  // refreshVisibility pass, but that alone doesn't touch already-rendered
+  // cells — so without this, switching the toggle on would silently leave
+  // the password inputs invisible until the client left and re-entered the
+  // step. Re-rendering rows only when the computed pattern actually
+  // *changes* (not on every unrelated keystroke) avoids losing focus while
+  // typing in this same table's other cells.
+  const columnsHaveVisibleWhen = field.columns.some((c) => typeof c.visibleWhen === 'function');
+  const columnVisibilitySignature = () => (columnsHaveVisibleWhen ? field.columns.map((c) => (c.visibleWhen ? c.visibleWhen(getAnswers()) : true)).join(',') : null);
+  let lastSignature = columnVisibilitySignature();
+
   wrapper.refreshVisibility = () => {
     const visible = isFieldVisible(field, getAnswers());
     wrapper.hidden = !visible;
+    if (columnsHaveVisibleWhen) {
+      const sig = columnVisibilitySignature();
+      if (sig !== lastSignature) {
+        lastSignature = sig;
+        renderRows();
+      }
+    }
     return visible;
   };
   wrapper.refreshVisibility();
