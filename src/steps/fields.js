@@ -121,6 +121,11 @@ export function createControl(spec, current, onChange, opts = {}) {
       id: domId,
       type: HTML_INPUT_TYPE[spec.type],
       class: spec.sensitive ? 'input input--sensitive' : 'input',
+      // Emails/URLs/phone numbers are inherently LTR strings; letting the
+      // browser pick direction per actual content (rather than inheriting
+      // the page's rtl) keeps them from getting right-aligned and having
+      // their start clipped in a narrow box — see table.js mailbox columns.
+      dir: 'auto',
       autocomplete: 'off',
       autocorrect: spec.sensitive ? 'off' : undefined,
       spellcheck: spec.sensitive ? 'false' : undefined,
@@ -137,6 +142,7 @@ export function createControl(spec, current, onChange, opts = {}) {
       id: domId,
       class: 'input input--textarea',
       rows: 3,
+      dir: 'auto',
       autocomplete: 'off',
       placeholder: spec.placeholder || '',
       oninput: (e) => onChange(e.target.value),

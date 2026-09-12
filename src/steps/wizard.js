@@ -54,6 +54,9 @@ function renderDraftPrompt(draft) {
           replaceAnswers(draft.answers);
           box.remove();
           startWizardShell();
+          const visibleSteps = getVisibleSteps(getAnswers());
+          const firstIncomplete = visibleSteps.findIndex((step) => stepStatus(step, getAnswers()) !== 'complete');
+          currentStepIndex = firstIncomplete === -1 ? 0 : firstIncomplete;
           render();
         },
       }, strings.autosave.continueDraft),
@@ -134,7 +137,7 @@ function render() {
 function renderProgress(visibleSteps, index) {
   clear(progressEl);
   const pct = visibleSteps.length ? Math.round((index / Math.max(visibleSteps.length - 1, 1)) * 100) : 0;
-  progressEl.appendChild(el('div', { class: 'progress-bar' }, [el('div', { class: 'progress-bar__fill', style: `width:${pct}%` })]));
+  progressEl.appendChild(el('div', { class: 'progress-bar' }, [el('div', { class: 'progress-bar__fill', style: `transform:scaleX(${pct / 100})` })]));
 }
 
 function renderSidebar(visibleSteps, answers) {
