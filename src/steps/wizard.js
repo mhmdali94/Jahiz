@@ -233,8 +233,14 @@ function renderSidebar(visibleSteps, answers) {
     chaptersEl.appendChild(el('section', { class: 'sidebar-chapter' }, [headerBtn, list]));
   }
 
-  sidebarEl.appendChild(el('button', { class: 'sidebar-toggle', 'aria-label': 'القائمة' }, '☰'));
-  sidebarEl.appendChild(chaptersEl);
+  // Toggle + chapters are wrapped separately from the draft panel so mobile
+  // can stick just the nav (small, always needs to be reachable) without
+  // pinning the draft-export panel to the screen too (see .sidebar-sticky).
+  const stickyNav = el('div', { class: 'sidebar-sticky' }, [
+    el('button', { class: 'sidebar-toggle', 'aria-label': 'القائمة' }, '☰'),
+    chaptersEl,
+  ]);
+  sidebarEl.appendChild(stickyNav);
   sidebarEl.appendChild(renderDraftPanel());
   sidebarEl.querySelector('.sidebar-toggle').addEventListener('click', () => sidebarEl.classList.toggle('is-open'));
 }

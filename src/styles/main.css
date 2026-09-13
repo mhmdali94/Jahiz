@@ -518,16 +518,28 @@ ul { margin: 0; padding-inline-start: 1.25rem; }
 /* ---------- responsive ---------- */
 @media (max-width: 768px) {
   .wizard-layout { flex-direction: column; padding-inline: var(--space-3); }
+  /* The desktop rule's `flex: 0 0 16rem` sets a WIDTH there, but flex-basis
+     tracks the main axis — once flex-direction flips to column here, that
+     same value becomes a fixed 256px HEIGHT, capping how far a sticky child
+     can travel before it silently unsticks. Reset it so height is content-driven. */
+  .wizard-sidebar { position: static; width: 100%; flex: none; padding-top: 3.5rem; }
   /* Static positioning let the toggle scroll away with the page on long
-     steps, with no way back to it short of scrolling all the way back up —
-     stick it (and its opened panel) to the top, same trick as the desktop
-     sidebar, so the menu is always one tap away. */
-  .wizard-sidebar {
-    position: sticky;
+     steps, with no way back to it short of scrolling all the way back up.
+     `position: sticky` can't fix that here: a sticky element only stays
+     stuck while its own parent's box is still in view, and `.wizard-sidebar`
+     (the parent) is only ~50px tall once the chapters are collapsed — it
+     scrolls past almost immediately, taking the "stuck" toggle with it.
+     `fixed` isn't bounded by a parent box, so it stays reachable for the
+     entire page. The `padding-top` above reserves the room this takes out
+     of the flow so the draft panel right after it doesn't end up hidden
+     underneath it. */
+  .sidebar-sticky {
+    position: fixed;
     top: 3.5rem;
-    width: 100%;
+    inset-inline: 0;
     z-index: 20;
     background: var(--bg);
+    padding-inline: var(--space-3);
     max-height: calc(100vh - 3.5rem);
     overflow-y: auto;
     overscroll-behavior: contain;
