@@ -27,7 +27,9 @@ const PREFILLED_FROM = {
 
 function emptyRow(field) {
   const row = { _rowId: newRowId() };
-  for (const col of field.columns) row[col.id] = col.type === 'select' && col.multiple ? [] : '';
+  for (const col of field.columns) {
+    row[col.id] = col.default !== undefined ? col.default : col.type === 'select' && col.multiple ? [] : '';
+  }
   return row;
 }
 
@@ -75,13 +77,14 @@ export function renderTableField(field) {
   const counter = field.liveCounter ? el('p', { class: 'table-field__counter' }) : null;
   if (counter) wrapper.appendChild(counter);
 
-  const tableWrap = el('div', { class: 'table-field__scroll' });
-  const table = el('table', { class: 'table-field__table' });
-  table.appendChild(renderHeaderRow(field));
-  const tbody = el('tbody');
-  table.appendChild(tbody);
-  tableWrap.appendChild(table);
-  wrapper.appendChild(tableWrap);
+  // Rows render as cards (label above each field, wrapping into a
+  // responsive grid) rather than a wide <table> — a table with a dozen-plus
+  // columns (products, projects…) forced constant horizontal scrolling with
+  // no visual cue which direction had more content, which was the single
+  // biggest usability complaint on this screen. A card's fields are never
+  // clipped and never need horizontal scrolling at any viewport width.
+  const cardsContainer = el('div', { class: 'row-cards' });
+  wrapper.appendChild(cardsContainer);
 
   const addBtn = el('button', { type: 'button', class: 'btn btn--secondary' }, `+ ${strings.nav.addRow}`);
   addBtn.addEventListener('click', () => {
@@ -96,9 +99,9 @@ export function renderTableField(field) {
   }
 
   function renderRows() {
-    tbody.replaceChildren();
+    cardsContainer.replaceChildren();
     const rows = getRows(field.id);
-    rows.forEach((row, index) => tbody.appendChild(renderRow(field, row, index, renderRows)));
+    rows.forEach((row, index) => cardsContainer.appendChild(renderRowCard(field, row, index, renderRows)));
     updateCounter();
   }
 
@@ -135,64 +138,75 @@ export function renderTableField(field) {
   return wrapper;
 }
 
-function renderHeaderRow(field) {
-  const thead = el('thead');
-  const tr = el('tr');
-  for (const col of field.columns) tr.appendChild(el('th', {}, labelWithLatinTerm(col.labelAr, col.latinTerm)));
-  tr.appendChild(el('th', { class: 'table-field__actions-col' }, ''));
-  thead.appendChild(tr);
-  return thead;
-}
+// Columns that need real room (free text, uploads) span the card's full
+// width; short answers (radios, selects, dates, short text) share the grid
+// two-or-more to a row. Keeps the common case compact without squeezing a
+// paragraph field into a 180px column.
+const WIDE_COLUMN_TYPES = new Set(['textarea', 'upload', 'radio']);
 
-function renderRow(field, row, index, rerender) {
-  const tr = el('tr', { dataset: { rowId: row._rowId } });
+function renderRowCard(field, row, index, rerender) {
+  const card = el('div', { class: 'row-card', dataset: { rowId: row._rowId } });
+
+  const header = el('div', { class: 'row-card__header' }, [
+    el('span', { class: 'row-card__index' }, `#${index + 1}`),
+    el('div', { class: 'row-card__actions' }, [
+      el('button', {
+        type: 'button',
+        class: 'icon-btn',
+        title: strings.nav.duplicateRow,
+        'aria-label': `${strings.nav.duplicateRow} (صف ${index + 1})`,
+        onclick: () => {
+          // A duplicated row starts with no images of its own — the copy
+          // gets a fresh _rowId, and uploaded images are keyed to the
+          // original row's id, so there's nothing to carry over anyway.
+          const rows = getRows(field.id);
+          rows.splice(index + 1, 0, { ...row, _rowId: newRowId() });
+          setRows(field.id, rows);
+          rerender();
+        },
+      }, '⧉'),
+      el('button', {
+        type: 'button',
+        class: 'icon-btn icon-btn--danger',
+        title: strings.nav.deleteRow,
+        'aria-label': `${strings.nav.deleteRow} (صف ${index + 1})`,
+        onclick: () => {
+          const rows = getRows(field.id);
+          rows.splice(index, 1);
+          setRows(field.id, rows);
+          deleteImagesForRow(field.id, row._rowId); // fire-and-forget cleanup, don't block the UI on it
+          rerender();
+        },
+      }, '×'),
+    ]),
+  ]);
+  card.appendChild(header);
+
+  const fieldsGrid = el('div', { class: 'row-card__fields' });
   for (const col of field.columns) {
-    const td = el('td', {});
-    if (!isFieldVisible(col, { ...getAnswers(), ...row })) {
-      td.appendChild(el('span', { class: 'table-field__cell-hidden' }, '—'));
-      tr.appendChild(td);
-      continue;
-    }
-    const opts = col.type === 'upload' ? { uploadContext: buildUploadContext(field, col, row) } : {};
+    if (!isFieldVisible(col, { ...getAnswers(), ...row })) continue; // simply omitted — no dash placeholder needed in a card
+
+    const fieldBox = el('div', { class: `row-card__field ${WIDE_COLUMN_TYPES.has(col.type) ? 'row-card__field--wide' : ''}` });
+    const domId = `c-${field.id}-${col.id}-${index}`;
+    fieldBox.appendChild(el('label', { class: 'row-card__label', for: domId }, labelWithLatinTerm(col.labelAr, col.latinTerm)));
+
+    const opts = {
+      domId,
+      name: `${field.id}_${col.id}_${index}`,
+      label: `${col.labelAr} - صف ${index + 1}`,
+      uploadContext: col.type === 'upload' ? buildUploadContext(field, col, row) : undefined,
+    };
     const control = createControl(col, row[col.id], (value) => {
       const rows = getRows(field.id);
       rows[index] = { ...rows[index], [col.id]: value };
       setRows(field.id, rows);
     }, opts);
-    td.appendChild(control);
-    tr.appendChild(td);
+    fieldBox.appendChild(control);
+    fieldsGrid.appendChild(fieldBox);
   }
+  card.appendChild(fieldsGrid);
 
-  const actions = el('td', { class: 'table-field__actions' }, [
-    el('button', {
-      type: 'button',
-      class: 'icon-btn',
-      title: strings.nav.duplicateRow,
-      onclick: () => {
-        // A duplicated row starts with no images of its own — the copy
-        // gets a fresh _rowId, and uploaded images are keyed to the
-        // original row's id, so there's nothing to carry over anyway.
-        const rows = getRows(field.id);
-        rows.splice(index + 1, 0, { ...row, _rowId: newRowId() });
-        setRows(field.id, rows);
-        rerender();
-      },
-    }, '⧉'),
-    el('button', {
-      type: 'button',
-      class: 'icon-btn icon-btn--danger',
-      title: strings.nav.deleteRow,
-      onclick: () => {
-        const rows = getRows(field.id);
-        rows.splice(index, 1);
-        setRows(field.id, rows);
-        deleteImagesForRow(field.id, row._rowId); // fire-and-forget cleanup, don't block the UI on it
-        rerender();
-      },
-    }, '×'),
-  ]);
-  tr.appendChild(actions);
-  return tr;
+  return card;
 }
 
 /**

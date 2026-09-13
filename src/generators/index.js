@@ -5,8 +5,6 @@
 // automatically alongside two file downloads. Each generator is isolated —
 // one throwing never blocks the others, per "Failure must be isolated."
 
-import { generateXlsx } from './xlsx.js';
-import { generateAssetsZip } from './zip.js';
 import { bumpVersion } from './version.js';
 import { slugify } from '../media/compress.js';
 
@@ -37,6 +35,7 @@ export async function generateAllFiles(answers) {
   const result = { version, xlsx: null, zip: null, errors: [] };
 
   try {
+    const { generateXlsx } = await import('./xlsx.js');
     const blob = await generateXlsx(answers, version);
     const filename = buildFilename(answers, 'onboarding', version, 'xlsx');
     triggerDownload(blob, filename);
@@ -46,6 +45,7 @@ export async function generateAllFiles(answers) {
   }
 
   try {
+    const { generateAssetsZip } = await import('./zip.js');
     const zipResult = await generateAssetsZip(answers);
     if (zipResult) {
       const filename = buildFilename(answers, 'assets', version, 'zip');

@@ -60,11 +60,6 @@ export const strings = {
     ownerPromptEn: 'Who has this information?',
   },
 
-  help: {
-    triggerLabel: '؟',
-    modalTitleAr: 'توضيح',
-  },
-
   upload: {
     dropzoneAr: 'اسحب الصور هنا أو اضغط للاختيار',
     dropzoneEn: 'Drag images here or click to choose',

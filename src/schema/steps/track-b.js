@@ -105,8 +105,9 @@ export const stepB0bLanguages = {
       latinTerm: 'SEO',
       visibleWhen: (a) => a.languages_required && a.languages_required !== 'ar_only',
     }),
-    field('needs_online_store', 'هل تحتاج متجراً إلكترونياً؟', 'Do you need an online store?', FIELD_TYPES.RADIO, { options: YES_NO }),
-    field('needs_cms_dashboard', 'هل تحتاج لوحة تحكم لإدارة المحتوى؟', 'Do you need a CMS dashboard?', FIELD_TYPES.RADIO, { options: YES_NO, latinTerm: 'CMS' }),
+    // No online store / CMS dashboard question here — this build delivers
+    // static pages only, no backend or admin panel, so neither is ever on
+    // offer regardless of what the client answers.
   ],
 };
 
@@ -127,7 +128,7 @@ export const stepB1Forms = {
       'Website forms table',
       [
         column('form_type', 'اسم النموذج', 'Form', FIELD_TYPES.SELECT, { options: FORM_TYPES, required: true }),
-        column('required', 'مطلوب؟', 'Required?', FIELD_TYPES.SELECT, { options: YES_NO_LATER }),
+        column('required', 'مطلوب؟', 'Required?', FIELD_TYPES.SELECT, { options: YES_NO_LATER, default: 'no' }),
         column('fields_needed', 'الحقول المطلوبة', 'Fields required', FIELD_TYPES.TEXTAREA),
         column('destination_email', 'يُرسل إلى بريد', 'Destination email', FIELD_TYPES.EMAIL, {
           flagsReview: 'form_required_no_destination',
@@ -160,9 +161,9 @@ export const stepB1Forms = {
       options: YES_NO,
       latinTerm: 'PDPL',
     }),
-    field('store_submissions_dashboard', 'هل تريد حفظ الطلبات في لوحة تحكم أم البريد يكفي؟', 'Store submissions in a dashboard, or is email enough?', FIELD_TYPES.RADIO, {
-      options: [{ value: 'dashboard', ar: 'لوحة تحكم' }, { value: 'email_only', ar: 'البريد يكفي' }],
-    }),
+    // No "store in a dashboard" option — static pages only, no backend to
+    // hold a submissions dashboard. Email/WhatsApp are the only delivery
+    // paths, already covered above.
     field('crm_integration', 'هل يوجد ربط مطلوب مع نظام CRM؟', 'Any CRM integration?', FIELD_TYPES.TEXT, { latinTerm: 'CRM' }),
     field('wants_careers_page', 'هل تريد صفحة وظائف شاغرة تُحدَّث باستمرار؟', 'Do they want a careers page they can update themselves?', FIELD_TYPES.RADIO, { options: YES_NO }),
   ],

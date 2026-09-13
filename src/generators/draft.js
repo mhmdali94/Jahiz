@@ -5,7 +5,6 @@
 // needs the photos too). Import always shows what's incoming before
 // touching anything already there — never a silent overwrite.
 
-import JSZip from 'jszip';
 import { getVisibleSteps } from '../schema/index.js';
 import { getAnswers } from '../steps/state.js';
 import { getImagesForCell, addImage } from '../media/store.js';
@@ -50,6 +49,7 @@ export function exportLightDraft(answers = getAnswers()) {
 }
 
 export async function exportFullDraft(answers = getAnswers()) {
+  const { default: JSZip } = await import('jszip');
   const zip = new JSZip();
   const imagesManifest = [];
 
@@ -86,6 +86,7 @@ export async function exportFullDraft(answers = getAnswers()) {
 /** @returns {Promise<{ kind: 'light'|'full', answers: object, images: Array }>} */
 export async function parseDraftFile(file) {
   if (file.name.endsWith('.zip')) {
+    const { default: JSZip } = await import('jszip');
     const zip = await JSZip.loadAsync(file);
     const draftEntry = zip.file('draft.json');
     if (!draftEntry) throw new Error('لم يتم العثور على draft.json داخل الملف المضغوط.');

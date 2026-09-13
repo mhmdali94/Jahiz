@@ -35,32 +35,59 @@ export function renderField(field) {
   if (field.type === FIELD_TYPES.STATIC) return renderNote(field);
 
   const wrapper = el('div', { class: `field field--${field.type}`, dataset: { fieldId: field.id } });
+  const labelId = `lbl-f-${field.id}`;
   const labelRow = el('div', { class: 'field__label-row' });
-  const label = el('label', { class: 'field__label', for: `f-${field.id}` }, [
+  const label = el('label', { class: 'field__label', id: labelId, for: `f-${field.id}` }, [
     labelWithLatinTerm(field.labelAr, field.latinTerm),
     field.required ? el('span', { class: 'field__required', 'aria-hidden': 'true' }, ' *') : null,
   ]);
   labelRow.appendChild(label);
-  if (field.helpAr) labelRow.appendChild(renderHelp(field.helpAr));
   wrapper.appendChild(labelRow);
+
+  const helpId = `help-${field.id}`;
+  if (field.helpAr) wrapper.appendChild(el('p', { class: 'field__help', id: helpId }, field.helpAr));
 
   const inputSlot = el('div', { class: 'field__input-slot' });
   wrapper.appendChild(inputSlot);
 
-  const errorEl = el('p', { class: 'field__error', hidden: true });
+  const errorId = `err-${field.id}`;
+  const errorEl = el('p', { class: 'field__error', id: errorId, role: 'alert', 'aria-live': 'polite', hidden: true });
   wrapper.appendChild(errorEl);
+
+  const input = buildInput(field, inputSlot);
+  const mainControls = input.matches?.('input,select,textarea') ? [input] : Array.from(input.querySelectorAll?.('input,select,textarea') || []);
+
+  if (field.required) {
+    for (const ctrl of mainControls) ctrl.setAttribute('aria-required', 'true');
+  }
+  if (field.helpAr) {
+    for (const ctrl of mainControls) ctrl.setAttribute('aria-describedby', helpId);
+  }
+
+  if (input.getAttribute?.('role') === 'radiogroup' || input.classList?.contains('checkbox-group')) {
+    input.setAttribute('aria-labelledby', labelId);
+  }
+
+  const describedByIds = [field.helpAr ? helpId : null, errorId].filter(Boolean).join(' ');
   wrapper._setError = (msg) => {
     if (msg) {
       errorEl.textContent = msg;
       errorEl.hidden = false;
       wrapper.classList.add('field--invalid');
+      for (const ctrl of mainControls) {
+        ctrl.setAttribute('aria-invalid', 'true');
+        ctrl.setAttribute('aria-describedby', describedByIds);
+      }
     } else {
       errorEl.hidden = true;
       wrapper.classList.remove('field--invalid');
+      for (const ctrl of mainControls) {
+        ctrl.removeAttribute('aria-invalid');
+        ctrl.setAttribute('aria-describedby', field.helpAr ? helpId : '');
+        if (!field.helpAr) ctrl.removeAttribute('aria-describedby');
+      }
     }
   };
-
-  const input = buildInput(field, inputSlot);
 
   if (field.allowUnknown) {
     inputSlot.appendChild(buildUnknownToggle(field, input));
@@ -93,13 +120,6 @@ function renderNote(field) {
   return wrapper;
 }
 
-function renderHelp(helpAr) {
-  const details = el('details', { class: 'help' });
-  details.appendChild(el('summary', { class: 'help__trigger', 'aria-label': strings.help.modalTitleAr }, strings.help.triggerLabel));
-  details.appendChild(el('p', { class: 'help__body' }, helpAr));
-  return details;
-}
-
 function buildInput(field, slot) {
   const control = createControl(field, getValue(field.id), (v) => setValue(field.id, v), { domId: `f-${field.id}`, name: field.id });
   slot.appendChild(control);
@@ -121,10 +141,6 @@ export function createControl(spec, current, onChange, opts = {}) {
       id: domId,
       type: HTML_INPUT_TYPE[spec.type],
       class: spec.sensitive ? 'input input--sensitive' : 'input',
-      // Emails/URLs/phone numbers are inherently LTR strings; letting the
-      // browser pick direction per actual content (rather than inheriting
-      // the page's rtl) keeps them from getting right-aligned and having
-      // their start clipped in a narrow box — see table.js mailbox columns.
       dir: 'auto',
       autocomplete: 'off',
       autocorrect: spec.sensitive ? 'off' : undefined,
@@ -133,6 +149,7 @@ export function createControl(spec, current, onChange, opts = {}) {
       'data-form-type': spec.sensitive ? 'other' : undefined,
       placeholder: spec.placeholder || '',
       value: current ?? '',
+      'aria-label': opts.label || undefined,
       oninput: (e) => onChange(e.target.value),
     });
   }
@@ -145,6 +162,7 @@ export function createControl(spec, current, onChange, opts = {}) {
       dir: 'auto',
       autocomplete: 'off',
       placeholder: spec.placeholder || '',
+      'aria-label': opts.label || undefined,
       oninput: (e) => onChange(e.target.value),
     });
     input.value = current ?? '';
@@ -152,7 +170,7 @@ export function createControl(spec, current, onChange, opts = {}) {
   }
 
   if (spec.type === FIELD_TYPES.SELECT && spec.multiple) {
-    const group = el('div', { class: 'checkbox-group', id: domId });
+    const group = el('div', { class: 'checkbox-group', id: domId, role: 'group', 'aria-label': opts.label || undefined });
     const values = new Set(Array.isArray(current) ? current : []);
     for (const opt of spec.options) {
       const cb = el('input', {
@@ -176,6 +194,7 @@ export function createControl(spec, current, onChange, opts = {}) {
     const select = el('select', {
       id: domId,
       class: 'input',
+      'aria-label': opts.label || undefined,
       onchange: (e) => onChange(e.target.value),
     });
     select.appendChild(el('option', { value: '' }, '— اختر —'));

@@ -2,7 +2,7 @@ import { field, note, FIELD_TYPES } from '../constants.js';
 
 // Step 0 is shown to everyone before track/project-type branching exists yet,
 // so `appliesTo` is intentionally every type — this step is what *sets* the type.
-const ALL = ['new', 'migration', 'redesign', 'email', 'unsure'];
+const ALL = ['new', 'migration', 'redesign', 'email_new', 'email_migration', 'unsure'];
 
 export const step0Start = {
   id: 'step0_start',

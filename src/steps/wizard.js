@@ -7,6 +7,7 @@
 
 import { el, clear } from './dom.js';
 import { getVisibleSteps } from '../schema/index.js';
+import { groupStepsByChapter } from '../schema/chapters.js';
 import { getAnswers, subscribe, replaceAnswers } from './state.js';
 import { renderField } from './fields.js';
 import { renderTableField } from './table.js';
@@ -21,6 +22,7 @@ let root;
 let currentStepIndex = 0; // index into getVisibleSteps(answers), recomputed each render
 let showingReview = false;
 let fieldNodes = []; // rendered field wrappers for the current step, for refreshVisibility()
+let expandedChapters = new Set(); // chapter ids the client opened by hand — the active chapter is always shown regardless
 
 export async function mountApp(appRoot) {
   root = appRoot;
@@ -28,6 +30,7 @@ export async function mountApp(appRoot) {
   const draft = loadDraft();
   const isPrivate = await detectPrivateMode();
 
+  root.appendChild(el('a', { href: '#main-content', class: 'skip-link' }, 'تخطي إلى المحتوى الرئيسي'));
   root.appendChild(el('div', { class: 'privacy-banner' }, strings.privacyBanner.ar));
 
   if (isPrivate) {
@@ -93,12 +96,12 @@ let sidebarEl, progressEl, stepBodyEl, footerEl, saveIndicatorEl;
 
 function startWizardShell() {
   const layout = el('div', { class: 'wizard-layout' });
-  sidebarEl = el('nav', { class: 'wizard-sidebar' });
-  const main = el('div', { class: 'wizard-main' });
+  sidebarEl = el('nav', { class: 'wizard-sidebar', 'aria-label': 'مراحل النموذج' });
+  const main = el('main', { class: 'wizard-main', id: 'main-content', tabindex: '-1' });
   progressEl = el('div', { class: 'wizard-progress' });
   stepBodyEl = el('div', { class: 'wizard-step' });
   footerEl = el('footer', { class: 'wizard-footer' });
-  saveIndicatorEl = el('span', { class: 'save-indicator' });
+  saveIndicatorEl = el('span', { class: 'save-indicator', role: 'status', 'aria-live': 'polite' });
 
   const missingImagesBanner = renderMissingImagesBannerIfAny();
   if (missingImagesBanner) root.appendChild(missingImagesBanner);
@@ -155,29 +158,83 @@ function render() {
 function renderProgress(visibleSteps, index) {
   clear(progressEl);
   const pct = visibleSteps.length ? Math.round((index / Math.max(visibleSteps.length - 1, 1)) * 100) : 0;
-  progressEl.appendChild(el('div', { class: 'progress-bar' }, [el('div', { class: 'progress-bar__fill', style: `transform:scaleX(${pct / 100})` })]));
+  progressEl.appendChild(el('div', {
+    class: 'progress-bar',
+    role: 'progressbar',
+    'aria-valuenow': pct,
+    'aria-valuemin': '0',
+    'aria-valuemax': '100',
+    'aria-label': 'نسبة إنجاز النموذج',
+  }, [el('div', { class: 'progress-bar__fill', style: `transform:scaleX(${pct / 100})` })]));
 }
 
+const STATUS_LABELS = {
+  untouched: 'غير مبدوء',
+  partial: 'مكتمل جزئياً',
+  complete: 'مكتمل',
+};
+
+// A flat 20+ step list read as "this is huge" before a non-technical client
+// had even started — grouping into a handful of named, collapsible
+// chapters means they only ever see ~8 lines at once. Only the chapter
+// holding the current step is forced open; anything the client opened by
+// hand stays open across re-renders too.
 function renderSidebar(visibleSteps, answers) {
   clear(sidebarEl);
-  const list = el('ol', { class: 'sidebar-list' });
-  visibleSteps.forEach((step, index) => {
-    const status = stepStatus(step, answers);
-    const item = el('li', {
-      class: `sidebar-list__item sidebar-list__item--${status} ${!showingReview && index === currentStepIndex ? 'is-active' : ''}`,
+  const chapterGroups = groupStepsByChapter(visibleSteps);
+  const activeStepId = !showingReview ? visibleSteps[currentStepIndex]?.id : null;
+
+  const chaptersEl = el('div', { class: 'sidebar-chapters' });
+  for (const { chapter, steps } of chapterGroups) {
+    const isActiveChapter = steps.some(({ step }) => step.id === activeStepId);
+    const isExpanded = isActiveChapter || expandedChapters.has(chapter.id);
+    const completeCount = steps.filter(({ step }) => stepStatus(step, answers) === 'complete').length;
+    const panelId = `chapter-panel-${chapter.id}`;
+
+    const list = el('ol', { class: 'sidebar-list', id: panelId, hidden: !isExpanded });
+    steps.forEach(({ step, index }) => {
+      const status = stepStatus(step, answers);
+      const isActive = step.id === activeStepId;
+      const btn = el('button', {
+        type: 'button',
+        class: `sidebar-list__button ${isActive ? 'is-active' : ''}`,
+        'aria-current': isActive ? 'step' : undefined,
+        'aria-label': `${step.titleAr} (${STATUS_LABELS[status] || status})`,
+        onclick: () => {
+          showingReview = false;
+          currentStepIndex = index;
+          sidebarEl.classList.remove('is-open');
+          render();
+          focusStepHeader();
+        },
+      }, [
+        el('span', { class: 'sidebar-list__dot', 'aria-hidden': 'true' }),
+        el('span', { class: 'sidebar-list__label' }, step.titleAr),
+      ]);
+      list.appendChild(el('li', { class: `sidebar-list__item sidebar-list__item--${status} ${isActive ? 'is-active' : ''}` }, [btn]));
+    });
+
+    const headerBtn = el('button', {
+      type: 'button',
+      class: `sidebar-chapter__header ${isActiveChapter ? 'is-active' : ''}`,
+      'aria-expanded': String(isExpanded),
+      'aria-controls': panelId,
       onclick: () => {
-        showingReview = false;
-        currentStepIndex = index;
+        if (expandedChapters.has(chapter.id)) expandedChapters.delete(chapter.id);
+        else expandedChapters.add(chapter.id);
         render();
       },
     }, [
-      el('span', { class: 'sidebar-list__dot' }),
-      el('span', { class: 'sidebar-list__label' }, step.titleAr),
+      el('span', { class: 'sidebar-chapter__chevron', 'aria-hidden': 'true' }, isExpanded ? '▾' : '◂'),
+      el('span', { class: 'sidebar-chapter__title' }, chapter.titleAr),
+      el('span', { class: 'sidebar-chapter__meta' }, `${completeCount}/${steps.length}`),
     ]);
-    list.appendChild(item);
-  });
+
+    chaptersEl.appendChild(el('section', { class: 'sidebar-chapter' }, [headerBtn, list]));
+  }
+
   sidebarEl.appendChild(el('button', { class: 'sidebar-toggle', 'aria-label': 'القائمة' }, '☰'));
-  sidebarEl.appendChild(list);
+  sidebarEl.appendChild(chaptersEl);
   sidebarEl.appendChild(renderDraftPanel());
   sidebarEl.querySelector('.sidebar-toggle').addEventListener('click', () => sidebarEl.classList.toggle('is-open'));
 }
@@ -202,7 +259,9 @@ function renderStep(step, answers) {
   clear(stepBodyEl);
   fieldNodes = [];
 
-  stepBodyEl.appendChild(el('div', { class: 'wizard-step__header' }, [el('h1', {}, step.titleAr)]));
+  stepBodyEl.appendChild(el('div', { class: 'wizard-step__header' }, [
+    el('h1', { tabindex: '-1', class: 'wizard-step__title' }, step.titleAr),
+  ]));
 
   if (step.optional) {
     stepBodyEl.appendChild(el('p', { class: 'wizard-step__optional-note' }, 'هذه الخطوة اختيارية بالكامل — يمكنك تخطّيها بضغطة واحدة.'));
@@ -215,6 +274,13 @@ function renderStep(step, answers) {
     body.appendChild(node);
   }
   stepBodyEl.appendChild(body);
+}
+
+function focusStepHeader() {
+  requestAnimationFrame(() => {
+    const heading = stepBodyEl.querySelector('h1');
+    if (heading) heading.focus({ preventScroll: true });
+  });
 }
 
 function renderFooter(visibleSteps, step, answers) {
@@ -238,6 +304,7 @@ function renderFooter(visibleSteps, step, answers) {
         if (isLast) {
           showingReview = true;
           render();
+          focusStepHeader();
         } else {
           go(1);
         }
@@ -251,7 +318,7 @@ function renderFooterForReview() {
   clear(footerEl);
   footerEl.appendChild(saveIndicatorEl);
   const actions = el('div', { class: 'wizard-footer__actions' });
-  actions.appendChild(el('button', { class: 'btn btn--secondary', onclick: () => { showingReview = false; render(); } }, strings.nav.back));
+  actions.appendChild(el('button', { class: 'btn btn--secondary', onclick: () => { showingReview = false; render(); focusStepHeader(); } }, strings.nav.back));
   footerEl.appendChild(actions);
 }
 
@@ -273,6 +340,8 @@ function validateStep(step) {
   }
   if (firstInvalid) {
     firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const inputToFocus = firstInvalid.querySelector('input,select,textarea');
+    if (inputToFocus) inputToFocus.focus();
     return false;
   }
   return true;
@@ -282,6 +351,7 @@ function go(direction) {
   saveNow(getAnswers());
   currentStepIndex += direction;
   render();
+  focusStepHeader();
 }
 
 function jumpToStep(stepId) {
@@ -292,4 +362,5 @@ function jumpToStep(stepId) {
   showingReview = false;
   currentStepIndex = index;
   render();
+  focusStepHeader();
 }

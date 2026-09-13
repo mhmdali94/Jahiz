@@ -15,9 +15,6 @@ import {
   YES_NO,
   TECHNICAL_LEVEL,
   TRAINING_MODE,
-  PAYMENT_METHODS,
-  PAYMENT_GATEWAYS,
-  SHIPPING_PARTNERS,
   CERTIFICATE_TYPES,
   CREDENTIAL_SERVICES,
   MIGRATION_ACCESS,
@@ -33,7 +30,7 @@ export const stepAfterHandover = {
   track: null,
   titleAr: 'ما بعد التسليم والتشغيل',
   titleEn: 'After handover & operations',
-  appliesTo: ['new', 'migration', 'redesign', 'email'],
+  appliesTo: ['new', 'migration', 'redesign', 'email_new', 'email_migration'],
   requiredFor: ['new', 'migration', 'redesign'],
   fields: [
     note('who_runs_group', 'من يدير الموقع؟', 'Who runs the site?'),
@@ -73,7 +70,7 @@ export const stepSaudiRequirements = {
   track: null,
   titleAr: 'المتطلبات السعودية',
   titleEn: 'Saudi market requirements',
-  appliesTo: ['new', 'migration', 'redesign', 'email'],
+  appliesTo: ['new', 'migration', 'redesign', 'email_new', 'email_migration'],
   requiredFor: ['new', 'redesign'],
   fields: [
     note('compliance_group', 'الامتثال النظامي', 'Regulatory compliance'),
@@ -107,20 +104,10 @@ export const stepSaudiRequirements = {
       helpAr: 'SaudiNIC يطلب السجل التجاري عند كل تجديد، وهذا يعطّل التجديد كثيراً إن لم يكن جاهزاً.',
     }),
 
-    note('payments_shipping_group', 'الدفع والشحن', 'Payments & shipping'),
-    field('payment_methods', 'طرق الدفع المطلوبة', 'Payment methods required', FIELD_TYPES.SELECT, {
-      options: PAYMENT_METHODS,
-      multiple: true,
-    }),
-    field('preferred_payment_gateway', 'بوابة الدفع المفضلة', 'Preferred payment gateway', FIELD_TYPES.SELECT, { options: PAYMENT_GATEWAYS }),
-    field('shipping_partners', 'شركات الشحن المعتمدة', 'Shipping partners', FIELD_TYPES.SELECT, {
-      options: SHIPPING_PARTNERS,
-      multiple: true,
-    }),
-    field('prices_vat_inclusive', 'هل الأسعار المعروضة شاملة ضريبة القيمة المضافة ١٥٪؟', 'Are displayed prices VAT-inclusive (15%)?', FIELD_TYPES.RADIO, { options: YES_NO }),
-    field('display_currency', 'عملة العرض', 'Display currency', FIELD_TYPES.RADIO, {
-      options: [{ value: 'sar_only', ar: 'الريال السعودي فقط' }, { value: 'other', ar: 'عملات أخرى أيضاً' }],
-    }),
+    // No payments/shipping/checkout group here — static pages only, no
+    // e-commerce, no payment gateway integration, ever. (Per-product price
+    // display with a VAT-inclusive flag still lives on the product catalog
+    // table itself — that's static catalog content, not a checkout.)
 
     note('localization_group', 'التوطين والمحتوى', 'Localization'),
     field('show_hijri_dates', 'هل تريد عرض التاريخ الهجري إلى جانب الميلادي؟', 'Show Hijri dates alongside Gregorian?', FIELD_TYPES.RADIO, { options: YES_NO }),
@@ -198,8 +185,8 @@ export const stepPasswords = {
   track: null,
   titleAr: 'صفحة كلمات المرور',
   titleEn: 'Passwords page',
-  appliesTo: ['new', 'migration', 'redesign', 'email'],
-  requiredFor: ['new', 'migration', 'redesign', 'email'],
+  appliesTo: ['new', 'migration', 'redesign', 'email_new', 'email_migration'],
+  requiredFor: ['new', 'migration', 'redesign', 'email_new', 'email_migration'],
   fields: [
     note('delegated_access_suggestion', 'بدل كلمة المرور — أعطِ صلاحية بدلاً منها', 'Better than passwords — delegated access', {
       helpAr: 'لكل خدمة أدناه، الوصول المفوَّض أو المؤقت متاح غالباً وهو المفضّل: ووردبريس/CMS → حساب مشرف مؤقت، Google Workspace/Microsoft 365 → دور مشرف مفوَّض، Cloudflare → دعوة كعضو، cPanel/الاستضافة → حساب فرعي، مزوّد النطاق → إضافة جهة اتصال ثانية.',

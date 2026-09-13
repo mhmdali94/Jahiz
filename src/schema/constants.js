@@ -19,19 +19,26 @@ export const FIELD_TYPES = {
   STATIC: 'static', // read-only note / warning block, not a real field
 };
 
+// "Email only" was split into two top-level types on user feedback — new
+// mailboxes and mail migration ask genuinely different questions (a
+// brand-new mailbox has no "migration access method" to discuss), and
+// collapsing them into one type with a dynamic visibleWhen fallback wasn't
+// clear enough on the form's very first question.
 export const PROJECT_TYPES = {
   NEW: 'new',
   MIGRATION: 'migration',
   REDESIGN: 'redesign',
-  EMAIL: 'email',
+  EMAIL_NEW: 'email_new',
+  EMAIL_MIGRATION: 'email_migration',
   UNSURE: 'unsure',
 };
 
 export const PROJECT_TYPE_LIST = [
   { value: PROJECT_TYPES.NEW, ar: 'موقع جديد', latin: 'New build' },
-  { value: PROJECT_TYPES.MIGRATION, ar: 'ترحيل موقع قائم', latin: 'Migration' },
+  { value: PROJECT_TYPES.MIGRATION, ar: 'ترحيل موقع قائم', latin: 'Website migration' },
   { value: PROJECT_TYPES.REDESIGN, ar: 'إعادة تصميم (مع الحفاظ على المحتوى)', latin: 'Redesign' },
-  { value: PROJECT_TYPES.EMAIL, ar: 'بريد إلكتروني فقط', latin: 'Email only' },
+  { value: PROJECT_TYPES.EMAIL_NEW, ar: 'إنشاء بريد إلكتروني جديد', latin: 'New mail setup' },
+  { value: PROJECT_TYPES.EMAIL_MIGRATION, ar: 'ترحيل بريد إلكتروني قائم', latin: 'Mail migration' },
   { value: PROJECT_TYPES.UNSURE, ar: 'لست متأكداً بعد', latin: 'Not sure yet' },
 ];
 
@@ -219,7 +226,6 @@ export const COPY_OR_INSPIRE = [
 ];
 
 export const THIRD_PARTY_SERVICES = [
-  option('payment_gateway', 'بوابة الدفع'),
   option('google_analytics', 'Google Analytics'),
   option('search_console', 'Google Search Console'),
   option('tag_manager', 'Google Tag Manager'),
@@ -243,7 +249,6 @@ export const CREDENTIAL_SERVICES = [
   option('mail_admin', 'لوحة تحكم البريد'),
   option('cms', 'لوحة تحكم الموقع (WordPress / CMS)'),
   option('cloudflare', 'Cloudflare'),
-  option('payment_gateway', 'بوابة الدفع'),
   option('analytics', 'Google Analytics / Search Console'),
   option('social', 'حسابات التواصل الاجتماعي'),
   option('other', 'أخرى'),
@@ -275,31 +280,8 @@ export const CONSENT_OPTIONS = [
   option('not_asked', 'لم يُسأل بعد'),
 ];
 
-export const PAYMENT_METHODS = [
-  option('mada', 'مدى'),
-  option('apple_pay', 'Apple Pay'),
-  option('stc_pay', 'STC Pay'),
-  option('visa', 'Visa / Mastercard'),
-  option('tabby', 'Tabby'),
-  option('tamara', 'Tamara'),
-  option('sadad', 'سداد (SADAD)'),
-  option('bank_transfer', 'تحويل بنكي'),
-];
-
-export const PAYMENT_GATEWAYS = [
-  option('moyasar', 'Moyasar'),
-  option('paytabs', 'PayTabs'),
-  option('hyperpay', 'HyperPay'),
-  option('tap', 'Tap'),
-  option('checkout', 'Checkout.com'),
-];
-
-export const SHIPPING_PARTNERS = [
-  option('smsa', 'سمسا (SMSA)'),
-  option('aramex', 'أرامكس'),
-  option('naqel', 'ناقل'),
-  option('spl', 'البريد السعودي (سبل)'),
-];
+// No payment methods / gateways / shipping partners lists — this build
+// never covers e-commerce or checkout, so there's nothing to offer here.
 
 export const CERTIFICATE_TYPES = [
   option('cr', 'السجل التجاري'),

@@ -18,6 +18,7 @@
   --warn: #8a5a00;
   --warn-bg: #fff6e5;
   --note-bg: #eef3f8;
+  --success: #2e8b57;
   --radius: 0.75rem;
   --radius-sm: 0.5rem;
   --space-1: 0.25rem;
@@ -48,6 +49,26 @@ h3 { font-size: 1rem; }
 p { margin: 0 0 var(--space-2); }
 ul { margin: 0; padding-inline-start: 1.25rem; }
 
+/* ---------- accessibility: skip link ---------- */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  inset-inline-start: 1rem;
+  background: var(--brand);
+  color: #fff;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-sm);
+  z-index: 100;
+  text-decoration: none;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: top var(--transition);
+}
+.skip-link:focus {
+  top: 0.5rem;
+  outline: 2px solid #fff;
+}
+
 /* ---------- privacy banner ---------- */
 .privacy-banner {
   position: sticky;
@@ -58,6 +79,9 @@ ul { margin: 0; padding-inline-start: 1.25rem; }
   text-align: center;
   font-size: 0.85rem;
   padding: var(--space-2) var(--space-4);
+  padding-top: max(var(--space-2), env(safe-area-inset-top));
+  padding-inline-start: max(var(--space-4), env(safe-area-inset-right));
+  padding-inline-end: max(var(--space-4), env(safe-area-inset-left));
 }
 
 .banner--warning {
@@ -91,7 +115,7 @@ ul { margin: 0; padding-inline-start: 1.25rem; }
   text-align: center;
 }
 .invalid-link__shortcode { display: flex; flex-direction: column; gap: var(--space-2); margin-top: var(--space-4); text-align: right; }
-.invalid-link__error { color: var(--danger); font-size: 0.9rem; margin-top: var(--space-2); }
+.invalid-link__error { color: var(--danger); font-size: 0.85rem; margin-top: var(--space-2); }
 
 /* ---------- layout ---------- */
 .wizard-layout {
@@ -107,31 +131,72 @@ ul { margin: 0; padding-inline-start: 1.25rem; }
   flex: 0 0 16rem;
   position: sticky;
   top: 3.5rem;
+  /* With ~28 steps plus the draft panel, this column is routinely taller
+     than the viewport — without its own scroll, sticky positioning made
+     everything past the visible fold permanently unreachable (you couldn't
+     scroll the page to reveal it, since sticky freezes the box itself).
+     Scrolling internally keeps every step and the draft panel reachable
+     regardless of window height. */
+  max-height: calc(100vh - 3.5rem - var(--space-6));
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 .sidebar-toggle { display: none; }
 
 .sidebar-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-1); }
-.sidebar-list__item {
+.sidebar-list[hidden] { display: none; } /* the plain class rule above otherwise outranks the browser's own [hidden] default */
+.sidebar-list__item { margin: 0; padding: 0; }
+.sidebar-list__button {
+  all: unset;
   display: flex;
   align-items: center;
   gap: var(--space-2);
+  width: 100%;
   padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-sm);
   cursor: pointer;
-  font-size: 0.9rem;
+  font: inherit;
+  font-size: 0.85rem;
   color: var(--ink-muted);
+  box-sizing: border-box;
+  transition: background var(--transition), color var(--transition);
+}
+.sidebar-list__button:hover { background: var(--note-bg); }
+.sidebar-list__button:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand); }
+.sidebar-list__button.is-active { background: var(--brand); color: #fff; font-weight: 600; }
+.sidebar-list__button.is-active .sidebar-list__dot { background: #fff; }
+.sidebar-list__dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); flex-shrink: 0; }
+.sidebar-list__item--complete .sidebar-list__dot { background: var(--success); }
+.sidebar-list__item--partial .sidebar-list__dot { background: var(--warn); }
+
+.sidebar-chapters { display: flex; flex-direction: column; gap: var(--space-1); }
+.sidebar-chapter + .sidebar-chapter { margin-top: var(--space-1); }
+.sidebar-chapter__header {
+  all: unset;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--ink);
+  box-sizing: border-box;
   transition: background var(--transition);
 }
-.sidebar-list__item:hover { background: var(--note-bg); }
-.sidebar-list__item.is-active { background: var(--brand); color: #fff; }
-.sidebar-list__item.is-active .sidebar-list__dot { background: #fff; }
-.sidebar-list__dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); flex-shrink: 0; }
-.sidebar-list__item--complete .sidebar-list__dot { background: #2e8b57; }
-.sidebar-list__item--partial .sidebar-list__dot { background: #d9a441; }
-.sidebar-list__item.is-active .sidebar-list__dot { background: #fff; }
+.sidebar-chapter__header:hover { background: var(--note-bg); }
+.sidebar-chapter__header:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand); }
+.sidebar-chapter__header.is-active { color: var(--brand); }
+.sidebar-chapter__chevron { color: var(--ink-muted); font-size: 0.75rem; flex-shrink: 0; }
+.sidebar-chapter__title { flex: 1; }
+.sidebar-chapter__meta { font-size: 0.75rem; font-weight: 400; color: var(--ink-muted); }
+.sidebar-chapter .sidebar-list { padding-inline-end: var(--space-4); margin-top: var(--space-1); }
 
 .draft-panel { margin-top: var(--space-6); padding-top: var(--space-4); border-top: 1px solid var(--border); }
-.draft-panel h3 { font-size: 0.9rem; color: var(--ink-muted); margin-bottom: var(--space-2); }
+.draft-panel h3 { font-size: 0.85rem; color: var(--ink-muted); margin-bottom: var(--space-2); }
 .draft-panel__row { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-2); }
 .draft-panel__merge { margin-top: var(--space-2); padding: var(--space-3); background: var(--note-bg); border-radius: var(--radius-sm); display: flex; flex-direction: column; gap: var(--space-2); }
 .draft-panel__summary { font-size: 0.85rem; }
@@ -159,7 +224,8 @@ ul { margin: 0; padding-inline-start: 1.25rem; }
   padding: var(--space-6);
 }
 .wizard-step__header h1 { margin-bottom: var(--space-2); }
-.wizard-step__optional-note { color: var(--ink-muted); font-size: 0.9rem; margin-bottom: var(--space-4); }
+.wizard-step__title:focus { outline: none; }
+.wizard-step__optional-note { color: var(--ink-muted); font-size: 0.85rem; margin-bottom: var(--space-4); }
 .wizard-step__body { display: flex; flex-direction: column; gap: var(--space-6); }
 
 /* ---------- fields ---------- */
@@ -186,22 +252,17 @@ ul { margin: 0; padding-inline-start: 1.25rem; }
 .input--disabled, .input:disabled { background: var(--bg); color: var(--ink-muted); }
 .input--sensitive { font-family: 'Courier New', monospace; }
 
-.help { display: inline-block; }
-.help__trigger {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.5rem;
-  height: 1.5rem;
-  border-radius: 50%;
-  border: 1px solid var(--border);
+/* Always visible, never behind a click — a "؟" a non-technical client has
+   to notice and tap is itself a barrier, and every field that has help
+   text here already earned it (see schema/steps/*.js helpAr). */
+.field__help {
+  margin: 0 0 var(--space-2);
+  font-size: 0.85rem;
   color: var(--ink-muted);
-  cursor: pointer;
-  font-size: 0.8rem;
-  list-style: none;
+  background: var(--note-bg);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
 }
-.help__trigger::-webkit-details-marker { display: none; }
-.help__body { margin-top: var(--space-2); font-size: 0.9rem; color: var(--ink-muted); background: var(--note-bg); padding: var(--space-3); border-radius: var(--radius-sm); }
 
 .radio-group, .checkbox-group { display: flex; flex-direction: column; gap: var(--space-2); }
 .radio-group__option, .checkbox-group__option {
@@ -225,13 +286,13 @@ ul { margin: 0; padding-inline-start: 1.25rem; }
 .switch input:checked + .switch__track::before { inset-inline-start: calc(100% - 1.375rem); }
 
 .unknown-toggle { display: flex; align-items: center; gap: var(--space-3); margin-top: var(--space-2); flex-wrap: wrap; }
-.unknown-toggle__label { display: flex; align-items: center; gap: var(--space-1); font-size: 0.9rem; color: var(--ink-muted); cursor: pointer; }
+.unknown-toggle__label { display: flex; align-items: center; gap: var(--space-1); font-size: 0.85rem; color: var(--ink-muted); cursor: pointer; }
 .input--owner { max-width: 16rem; }
 
 .note { background: var(--note-bg); border-radius: var(--radius-sm); padding: var(--space-3) var(--space-4); }
 .note--warning { background: var(--warn-bg); }
 .note__title { font-weight: 600; margin: 0; }
-.note__body { margin: var(--space-1) 0 0; color: var(--ink-muted); font-size: 0.9rem; }
+.note__body { margin: var(--space-1) 0 0; color: var(--ink-muted); font-size: 0.85rem; }
 
 /* ---------- uploads ---------- */
 .upload-dropzone {
@@ -248,7 +309,7 @@ ul { margin: 0; padding-inline-start: 1.25rem; }
 .upload-dropzone input { min-height: 0; }
 .upload-progress { color: var(--ink-muted); font-size: 0.85rem; margin: var(--space-2) 0 0; }
 .upload-rejected { color: var(--danger); font-size: 0.85rem; margin: var(--space-2) 0 0; }
-.upload-total { font-weight: 600; font-size: 0.9rem; margin: var(--space-3) 0 0; }
+.upload-total { font-weight: 600; font-size: 0.85rem; margin: var(--space-3) 0 0; }
 
 .upload-grid { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-3); }
 .upload-thumb {
@@ -273,30 +334,62 @@ ul { margin: 0; padding-inline-start: 1.25rem; }
 }
 .upload-thumb__caption {
   display: block;
-  font-size: 0.7rem;
+  font-size: 0.85rem;
   color: var(--ink-muted);
   padding: var(--space-1) var(--space-2) 0;
   word-break: break-all;
   text-align: left;
 }
-.upload-thumb__actions { display: flex; gap: 2px; padding: var(--space-1) var(--space-2) var(--space-2); }
-.upload-thumb__actions .icon-btn { width: 1.75rem; height: 1.75rem; flex: 1; }
+.upload-thumb__actions { display: flex; gap: var(--space-1); padding: var(--space-1) var(--space-2) var(--space-2); }
+.upload-thumb__actions .icon-btn { min-width: 2rem; min-height: 2rem; width: auto; height: auto; font-size: 0.85rem; flex: 1; }
 .upload-thumb__actions .icon-btn:disabled { opacity: 0.35; cursor: default; }
 
 /* ---------- tables ---------- */
 .table-field__title { margin-bottom: var(--space-1); }
-.table-field__help { color: var(--ink-muted); font-size: 0.9rem; margin-bottom: var(--space-3); }
+.table-field__help { color: var(--ink-muted); font-size: 0.85rem; margin-bottom: var(--space-3); }
 .table-field__counter { font-weight: 600; margin-bottom: var(--space-3); }
-.table-field__scroll { overflow-x: auto; margin-bottom: var(--space-3); }
-.table-field__table { border-collapse: collapse; width: 100%; min-width: 40rem; }
-.table-field__table th, .table-field__table td { border: 1px solid var(--border); padding: var(--space-2); text-align: right; vertical-align: top; min-width: 8.5rem; }
-.table-field__table th:last-child, .table-field__table td.table-field__actions { min-width: 4.5rem; }
-.table-field__table th { background: var(--bg); font-size: 0.85rem; white-space: nowrap; }
-.table-field__table .input { min-height: 2.25rem; }
-.table-field__actions { display: flex; gap: var(--space-1); white-space: nowrap; }
-.table-field__cell-hidden { color: var(--ink-muted); }
-.icon-btn { border: 1px solid var(--border); background: var(--surface); border-radius: var(--radius-sm); width: 2rem; height: 2rem; cursor: pointer; }
+/* Rows render as cards, never as a wide scrolling table — see table.js for
+   why (a 12+ column table forced constant, directionless horizontal
+   scrolling on screens like Products). Nothing in this form scrolls
+   sideways at any width. */
+.row-cards { display: flex; flex-direction: column; gap: var(--space-4); margin-bottom: var(--space-3); }
+.row-card { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); padding: var(--space-4); }
+.row-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-3);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--border);
+}
+.row-card__index { font-weight: 600; color: var(--ink-muted); }
+.row-card__actions { display: flex; gap: var(--space-2); }
+.row-card__fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  gap: var(--space-3) var(--space-4);
+}
+.row-card__field { display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }
+.row-card__field--wide { grid-column: 1 / -1; }
+.row-card__label { font-size: 0.85rem; font-weight: 600; color: var(--ink-muted); }
+.icon-btn {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.15rem;
+  color: var(--ink);
+  transition: background var(--transition), border-color var(--transition);
+}
+.icon-btn:hover { background: var(--note-bg); border-color: var(--brand); }
+.icon-btn:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--brand); }
 .icon-btn--danger { color: var(--danger); }
+.icon-btn--danger:hover { background: var(--danger-bg); border-color: var(--danger); }
 .paste-helper { display: flex; flex-direction: column; gap: var(--space-2); margin-bottom: var(--space-4); }
 
 /* ---------- footer ---------- */
@@ -306,6 +399,9 @@ ul { margin: 0; padding-inline-start: 1.25rem; }
   background: var(--surface);
   border-top: 1px solid var(--border);
   padding: var(--space-3) var(--space-4);
+  padding-bottom: max(var(--space-3), env(safe-area-inset-bottom));
+  padding-inline-start: max(var(--space-4), env(safe-area-inset-right));
+  padding-inline-end: max(var(--space-4), env(safe-area-inset-left));
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -329,7 +425,7 @@ ul { margin: 0; padding-inline-start: 1.25rem; }
 .btn--primary:hover { filter: brightness(1.1); }
 .btn--secondary { background: var(--surface); border-color: var(--border); color: var(--ink); }
 .btn--ghost { background: none; border-color: transparent; color: var(--ink-muted); }
-.btn--large { min-height: 3.25rem; font-size: 1.05rem; width: 100%; margin-top: var(--space-6); }
+.btn--large { min-height: 3.25rem; font-size: 1.15rem; width: 100%; margin-top: var(--space-6); }
 .btn--small { padding: 0.35rem 0.75rem; min-height: 2rem; font-size: 0.85rem; }
 
 /* ---------- review screen ---------- */
@@ -370,7 +466,7 @@ ul { margin: 0; padding-inline-start: 1.25rem; }
 .missing-items-group { margin-bottom: var(--space-4); }
 .missing-items-group:last-child { margin-bottom: 0; }
 .forward-message-wrap { margin-top: var(--space-2); }
-.forward-message { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: var(--space-3); white-space: pre-wrap; font-size: 0.9rem; margin-bottom: var(--space-2); }
+.forward-message { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: var(--space-3); white-space: pre-wrap; font-size: 0.85rem; margin-bottom: var(--space-2); }
 
 .warnings-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: var(--space-2); }
 .warnings-list__item { display: flex; justify-content: space-between; align-items: center; gap: var(--space-3); padding: var(--space-3); border-radius: var(--radius-sm); }
@@ -388,11 +484,11 @@ ul { margin: 0; padding-inline-start: 1.25rem; }
 .is-answered { color: var(--ink-muted); text-decoration: line-through; }
 
 /* ---------- download screen ---------- */
-.download-screen__version { color: var(--ink-muted); font-size: 0.9rem; margin-bottom: var(--space-4); }
+.download-screen__version { color: var(--ink-muted); font-size: 0.85rem; margin-bottom: var(--space-4); }
 .download-files { display: flex; flex-direction: column; gap: var(--space-3); }
 .download-file { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: var(--space-4); }
 .download-file strong { display: block; margin-bottom: var(--space-1); word-break: break-all; }
-.download-file--zip { border: 2px solid var(--brand); background: rgba(31, 78, 120, 0.05); padding: var(--space-6); font-size: 1.05rem; }
+.download-file--zip { border: 2px solid var(--brand); background: rgba(31, 78, 120, 0.05); padding: var(--space-6); font-size: 1.15rem; }
 .download-file--error { border-color: var(--warn); background: var(--warn-bg); color: var(--warn); }
 
 /* ---------- print / pdf ---------- */
@@ -407,7 +503,7 @@ ul { margin: 0; padding-inline-start: 1.25rem; }
     display: block !important;
     direction: rtl;
     font-family: 'Cairo', 'Tahoma', sans-serif;
-    color: #000;
+    color: var(--ink);
   }
   .print-cover { text-align: center; margin-bottom: 2rem; page-break-after: always; }
   .print-section { margin-bottom: 1.5rem; page-break-inside: avoid; }
@@ -422,7 +518,20 @@ ul { margin: 0; padding-inline-start: 1.25rem; }
 /* ---------- responsive ---------- */
 @media (max-width: 768px) {
   .wizard-layout { flex-direction: column; padding-inline: var(--space-3); }
-  .wizard-sidebar { position: static; width: 100%; }
+  /* Static positioning let the toggle scroll away with the page on long
+     steps, with no way back to it short of scrolling all the way back up —
+     stick it (and its opened panel) to the top, same trick as the desktop
+     sidebar, so the menu is always one tap away. */
+  .wizard-sidebar {
+    position: sticky;
+    top: 3.5rem;
+    width: 100%;
+    z-index: 20;
+    background: var(--bg);
+    max-height: calc(100vh - 3.5rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
   .sidebar-toggle {
     display: block;
     width: 100%;
@@ -431,16 +540,61 @@ ul { margin: 0; padding-inline-start: 1.25rem; }
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
-    font-size: 1.1rem;
+    font-size: 1.15rem;
     cursor: pointer;
   }
-  .sidebar-list { display: none; margin-top: var(--space-2); }
-  .wizard-sidebar.is-open .sidebar-list { display: flex; }
+  .sidebar-chapters { display: none; margin-top: var(--space-2); }
+  .wizard-sidebar.is-open .sidebar-chapters { display: block; }
   .scope-summary { flex-direction: column; gap: var(--space-4); }
 }
 
-@media (max-width: 420px) {
+@media (max-width: 480px) {
   .wizard-step { padding: var(--space-4); }
-  .wizard-footer__actions { gap: var(--space-2); }
-  .btn { padding: 0.6rem 0.9rem; }
+  .wizard-footer {
+    flex-direction: column-reverse;
+    gap: var(--space-2);
+    align-items: stretch;
+  }
+  .wizard-footer__actions {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-2);
+    margin-inline-start: 0;
+  }
+  .wizard-footer__actions .btn {
+    flex: 1;
+    text-align: center;
+  }
+  .save-indicator {
+    text-align: center;
+    font-size: 0.85rem;
+  }
 }
+
+/* ---------- responsive: coarse pointer & touch ---------- */
+@media (pointer: coarse) {
+  .sidebar-list__button {
+    min-height: 2.75rem;
+  }
+  .btn {
+    min-height: 2.85rem;
+  }
+}
+
+/* ---------- accessibility: reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --transition: 0s;
+  }
+  .progress-bar__fill {
+    transition: none;
+  }
+  .btn, .input, .switch__track, .switch__track::before, .sidebar-list__button, .icon-btn, .skip-link {
+    transition: none;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+}
+

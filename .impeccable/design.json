@@ -1,0 +1,270 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-12T19:34:50Z",
+  "title": "Design System: Jahiz (جاهز)",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "Diplomatic Navy",
+        "canonical": "#1f4e78",
+        "tonalRamp": [
+          "#0d2033",
+          "#163a59",
+          "#1f4e78",
+          "#2a689e",
+          "#4186c4",
+          "#71a7dc",
+          "#b3d3f2",
+          "#eef5fc"
+        ]
+      },
+      "primary-dark": {
+        "role": "primary",
+        "displayName": "Abyssal Slate",
+        "canonical": "#163a59",
+        "tonalRamp": [
+          "#091826",
+          "#102a41",
+          "#163a59",
+          "#22537d",
+          "#3472a6",
+          "#5f96c4",
+          "#a7cae6",
+          "#edf4fa"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Deep Ink",
+        "canonical": "#1a2330",
+        "tonalRamp": [
+          "#0a0e14",
+          "#121922",
+          "#1a2330",
+          "#2b394d",
+          "#425570",
+          "#6980a0",
+          "#abc0d9",
+          "#f0f4f9"
+        ]
+      },
+      "ink-muted": {
+        "role": "neutral",
+        "displayName": "Muted Ink",
+        "canonical": "#5b6572",
+        "tonalRamp": [
+          "#1d2126",
+          "#363c45",
+          "#5b6572",
+          "#7a8696",
+          "#9aa5b4",
+          "#bec7d2",
+          "#dfe4ea",
+          "#f4f6f8"
+        ]
+      },
+      "canvas": {
+        "role": "neutral",
+        "displayName": "Canvas Slate",
+        "canonical": "#f7f9fb",
+        "tonalRamp": [
+          "#202428",
+          "#484f57",
+          "#76808b",
+          "#a8b2bd",
+          "#ced5dd",
+          "#e6ebf0",
+          "#f1f5f8",
+          "#f7f9fb"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Pure Surface",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "#1a1a1a",
+          "#3b3b3b",
+          "#666666",
+          "#999999",
+          "#cccccc",
+          "#ebebeb",
+          "#f7f7f7",
+          "#ffffff"
+        ]
+      },
+      "border": {
+        "role": "neutral",
+        "displayName": "Boundary Border",
+        "canonical": "#dde3ea",
+        "tonalRamp": [
+          "#202428",
+          "#444c54",
+          "#6f7a85",
+          "#9eaab6",
+          "#c4cdd6",
+          "#dde3ea",
+          "#eef1f5",
+          "#fafbfc"
+        ]
+      },
+      "danger": {
+        "role": "error",
+        "displayName": "Crimson Alert",
+        "canonical": "#b3261e",
+        "tonalRamp": [
+          "#4a0e0a",
+          "#7e1a14",
+          "#b3261e",
+          "#dc3c33",
+          "#e86962",
+          "#f29d98",
+          "#facfcc",
+          "#fdecea"
+        ]
+      },
+      "warn": {
+        "role": "warning",
+        "displayName": "Ochre Warning",
+        "canonical": "#8a5a00",
+        "tonalRamp": [
+          "#3b2600",
+          "#613f00",
+          "#8a5a00",
+          "#b87a00",
+          "#de9c16",
+          "#f2bf57",
+          "#fae3a7",
+          "#fff6e5"
+        ]
+      },
+      "note-bg": {
+        "role": "info",
+        "displayName": "Ice Note",
+        "canonical": "#eef3f8",
+        "tonalRamp": [
+          "#1b2733",
+          "#334659",
+          "#556f8a",
+          "#7e99b5",
+          "#abc0d6",
+          "#d0deec",
+          "#eef3f8",
+          "#f8fafc"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display Title", "purpose": "Primary step headers and major modal headings." },
+      "headline": { "displayName": "Section Headline", "purpose": "Section dividers and milestone card headers." },
+      "title": { "displayName": "Field Title", "purpose": "Form field labels and table column titles." },
+      "body": { "displayName": "Body Prose", "purpose": "Default reading paragraphs, descriptions, and user inputs." },
+      "label": { "displayName": "Meta Label", "purpose": "Action button text, badges, and Latin technical terms." }
+    },
+    "shadows": [
+      {
+        "name": "focus-halo",
+        "value": "0 0 0 3px rgba(31, 78, 120, 0.12)",
+        "purpose": "Non-intrusive interactive focus indicator on active form inputs and buttons."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-standard",
+        "value": "cubic-bezier(0.4, 0, 0.2, 1)",
+        "purpose": "Default fluid transition for button hover, border colors, and progress transforms."
+      }
+    ],
+    "breakpoints": [
+      { "name": "mobile", "value": "768px" },
+      { "name": "small-mobile", "value": "420px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The primary forward action in the wizard.",
+      "html": "<button class=\"ds-btn-primary\">التالي والحفظ</button>",
+      "css": ".ds-btn-primary { background: #1f4e78; color: #ffffff; min-height: 2.75rem; padding: 0.65rem 1.25rem; font-family: 'Cairo', sans-serif; font-size: 0.95rem; font-weight: 600; border: 1px solid transparent; border-radius: 8px; cursor: pointer; transition: filter 0.2s cubic-bezier(0.4, 0, 0.2, 1); } .ds-btn-primary:hover { filter: brightness(1.1); } .ds-btn-primary:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(31, 78, 120, 0.25); }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Secondary or previous step action.",
+      "html": "<button class=\"ds-btn-secondary\">السابق</button>",
+      "css": ".ds-btn-secondary { background: #ffffff; color: #1a2330; min-height: 2.75rem; padding: 0.65rem 1.25rem; font-family: 'Cairo', sans-serif; font-size: 0.95rem; font-weight: 500; border: 1px solid #dde3ea; border-radius: 8px; cursor: pointer; transition: background 0.2s cubic-bezier(0.4, 0, 0.2, 1); } .ds-btn-secondary:hover { background: #f7f9fb; } .ds-btn-secondary:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(31, 78, 120, 0.12); }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input-text",
+      "description": "Standard single-line text and URL field.",
+      "html": "<input type=\"text\" class=\"ds-input\" placeholder=\"اكتب اسم النطاق هنا…\" dir=\"rtl\" />",
+      "css": ".ds-input { width: 100%; min-height: 2.75rem; padding: 0.65rem 0.85rem; font-family: 'Cairo', sans-serif; font-size: 0.95rem; color: #1a2330; background: #ffffff; border: 1px solid #dde3ea; border-radius: 8px; box-sizing: border-box; transition: border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1); } .ds-input:focus { outline: none; border-color: #1f4e78; box-shadow: 0 0 0 3px rgba(31, 78, 120, 0.12); }"
+    },
+    {
+      "name": "Radio Select Option",
+      "kind": "custom",
+      "refersTo": "radio-tile",
+      "description": "Selectable question option tile.",
+      "html": "<label class=\"ds-radio-option\"><input type=\"radio\" checked /><div class=\"ds-radio-content\"><strong class=\"ds-radio-title\">تسليم تقني كامل</strong><span class=\"ds-radio-desc\">يشمل الخوادم والـ DNS وقواعد البيانات</span></div></label>",
+      "css": ".ds-radio-option { display: flex; align-items: flex-start; gap: 0.5rem; padding: 0.75rem; border: 1px solid #1f4e78; background: rgba(31, 78, 120, 0.05); border-radius: 8px; cursor: pointer; font-family: 'Cairo', sans-serif; } .ds-radio-content { display: flex; flex-direction: column; gap: 0.25rem; } .ds-radio-title { font-size: 0.95rem; color: #1a2330; font-weight: 600; } .ds-radio-desc { font-size: 0.85rem; color: #5b6572; }"
+    },
+    {
+      "name": "Privacy Guarantee Banner",
+      "kind": "custom",
+      "refersTo": "banner-privacy",
+      "description": "Persistent top security assurance banner.",
+      "html": "<div class=\"ds-privacy-banner\">بياناتك لا تغادر جهازك — لا يتم رفع أي معلومة إلى أي خادم</div>",
+      "css": ".ds-privacy-banner { background: #163a59; color: #ffffff; text-align: center; font-size: 0.85rem; font-family: 'Cairo', sans-serif; padding: 0.5rem 1rem; width: 100%; box-sizing: border-box; font-weight: 500; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Sovereign Handoff (العهد الموثوق)",
+    "overview": "Jahiz embodies institutional trust, executive calm, and bank-grade confidentiality. Designed specifically for Arabic enterprise clients, corporate entities, and government contractors, the visual system prioritizes clarity and solemn security over whimsical decoration. Every screen communicates stability: zero decorative illustrations, zero playful animations, and zero ambiguity.\n\nThe density is deliberate and spacious: generous touch targets (44px minimum height), high-contrast Arabic typography using Cairo, and clear Right-to-Left (RTL) reading geometry. Surfaces remain quiet and grounded, establishing confidence that sensitive infrastructure credentials and corporate data are handled with rigorous professionalism and mathematical privacy.",
+    "keyCharacteristics": [
+      "Strict RTL Alignment: Every layout, transition origin, table, and indicator flows naturally from right to left.",
+      "Institutional Palette: Deep Diplomatic Navy (#1f4e78) paired with pristine slate backgrounds (#f7f9fb) and clean white card sheets (#ffffff).",
+      "Executive Restraint: Visual hierarchy is communicated through type weight and clean border boundaries (#dde3ea), not heavy drop shadows or bright gradients.",
+      "Reassuring Privacy Anchors: Sticky top banner in Abyssal Slate (#163a59) perpetually reinforcing offline data residency."
+    ],
+    "rules": [
+      {
+        "name": "The Sovereign Shield Rule",
+        "body": "Deep Diplomatic Navy is strictly reserved for cryptographic trust (sticky privacy banner) and the active path; it is never used as decorative filler or secondary ornament.",
+        "section": "colors"
+      },
+      {
+        "name": "The Status Purity Rule",
+        "body": "Red and amber are strictly reserved for genuine user blockers, missing mandatory steps, and data loss risks. Never use status colors for aesthetic variety.",
+        "section": "colors"
+      },
+      {
+        "name": "The Native Script Rule",
+        "body": "Always render Latin technical terms (such as DNS, MX, TTL, SSL) in an explicit muted secondary style (.latin-term, 0.85em, 400 weight) inline with Arabic labels to preserve natural RTL rhythm without disrupting Arabic baseline harmony.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat-By-Default Rule",
+        "body": "Surfaces never float or cast drop shadows at rest. Elevation is structural and flat, expressed purely through 1px crisp borders (#dde3ea) and background tone shifts. Shadows appear only as active state focus halos.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do preserve 100% Right-to-Left (RTL) symmetry in all layout margins, paddings, and directional icons.",
+      "Do maintain 44px (2.75rem) minimum heights on all interactive buttons, inputs, and selectable tiles.",
+      "Do set progress bar animation origin explicitly to transform-origin: right to grow correctly in RTL without triggering browser relayouts.",
+      "Do format technical and English terminology in .latin-term styling alongside Arabic labels."
+    ],
+    "donts": [
+      "Don't add decorative box-shadows, floating card glows, or 3D skeuomorphic gradients.",
+      "Don't use casual or conversational emojis in UI chrome (traffic light status in the final review score is the sole approved exception).",
+      "Don't introduce external web fonts or CDN links that violate the strict offline Content Security Policy (connect-src 'none').",
+      "Don't use saturated red or green accents for decorative purposes; reserve them strictly for actionable data verification states."
+    ]
+  }
+}

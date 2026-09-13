@@ -50,8 +50,9 @@ prompt_project_type() {
   echo "  1) موقع جديد" >&2
   echo "  2) ترحيل موقع قائم" >&2
   echo "  3) إعادة تصميم" >&2
-  echo "  4) بريد فقط" >&2
-  echo "  5) تخطّي (العميل يختار بنفسه)" >&2
+  echo "  4) إنشاء بريد إلكتروني جديد" >&2
+  echo "  5) ترحيل بريد إلكتروني قائم" >&2
+  echo "  6) تخطّي (العميل يختار بنفسه)" >&2
   local choice
   while true; do
     read -r -p "اختر رقماً: " choice
@@ -59,8 +60,9 @@ prompt_project_type() {
       1) echo "new"; return ;;
       2) echo "migration"; return ;;
       3) echo "redesign"; return ;;
-      4) echo "email"; return ;;
-      5) echo ""; return ;;
+      4) echo "email_new"; return ;;
+      5) echo "email_migration"; return ;;
+      6) echo ""; return ;;
       *) echo -e "${RED}اختيار غير صحيح.${RESET}" >&2 ;;
     esac
   done

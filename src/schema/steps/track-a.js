@@ -41,8 +41,8 @@ export const stepA1ProjectType = {
   track: 'A',
   titleAr: 'نوع المشروع',
   titleEn: 'Project type',
-  appliesTo: ['new', 'migration', 'redesign', 'email'],
-  requiredFor: ['new', 'migration', 'redesign', 'email'],
+  appliesTo: ['new', 'migration', 'redesign', 'email_new', 'email_migration'],
+  requiredFor: ['new', 'migration', 'redesign', 'email_new', 'email_migration'],
   fields: [
     field('project_type', 'نوع المشروع', 'Project type', FIELD_TYPES.RADIO, {
       required: true,
@@ -63,7 +63,7 @@ export const stepA2CurrentSite = {
   track: 'A',
   titleAr: 'الموقع الحالي',
   titleEn: 'Current website',
-  appliesTo: ['migration', 'redesign', 'email'],
+  appliesTo: ['migration', 'redesign', 'email_new', 'email_migration'],
   requiredFor: ['migration', 'redesign'],
   fields: [
     field('current_url', 'رابط الموقع الحالي', 'Current website URL', FIELD_TYPES.URL, { required: true }),
@@ -192,8 +192,8 @@ export const stepA3Domain = {
   track: 'A',
   titleAr: 'النطاق (Domain)',
   titleEn: 'Domain',
-  appliesTo: ['new', 'migration', 'redesign', 'email'],
-  requiredFor: ['new', 'migration', 'redesign', 'email'],
+  appliesTo: ['new', 'migration', 'redesign', 'email_new', 'email_migration'],
+  requiredFor: ['new', 'migration', 'redesign', 'email_new', 'email_migration'],
   fields: [
     field('domain_primary', 'اسم النطاق الأساسي', 'Primary domain name', FIELD_TYPES.TEXT, { required: true, allowUnknown: false }),
     field('domain_registrar', 'شركة تسجيل النطاق', 'Domain registrar', FIELD_TYPES.SELECT, { options: REGISTRARS }),
@@ -302,8 +302,11 @@ export const stepA5MailCurrent = {
   track: 'A',
   titleAr: 'البريد الإلكتروني — الوضع الحالي',
   titleEn: 'Mail — current setup',
-  appliesTo: ['new', 'migration', 'redesign', 'email'],
-  requiredFor: ['new', 'migration', 'email'],
+  appliesTo: ['new', 'migration', 'redesign', 'email_new', 'email_migration'],
+  // A brand-new mailbox setup may genuinely have no "current" mail
+  // provider to report (first business email ever) — optional there, but
+  // required when migrating (we need to know what we're moving away from).
+  requiredFor: ['new', 'migration', 'email_migration'],
   fields: [
     field('mail_provider_current', 'مزوّد البريد الحالي', 'Current mail provider', FIELD_TYPES.SELECT, {
       options: MAIL_PROVIDERS,
@@ -348,10 +351,14 @@ export const stepA5bMailMigrationAccess = {
   track: 'A',
   titleAr: 'البريد — بيانات الخادم وطريقة الترحيل',
   titleEn: 'Mail — server settings & migration access',
-  appliesTo: ['migration', 'email'],
-  requiredFor: ['migration', 'email'],
+  // email_new deliberately excluded — brand-new mailboxes have no
+  // "migration access method" to discuss. The visibleWhen fallback below
+  // still catches it if a new-mail project ends up with a mailbox marked
+  // "migrate" anyway.
+  appliesTo: ['migration', 'email_migration'],
+  requiredFor: ['migration', 'email_migration'],
   visibleWhen: (answers) =>
-    ['migration', 'email'].includes(answers.project_type) ||
+    ['migration', 'email_migration'].includes(answers.project_type) ||
     (answers.a6_mailboxes || []).some((row) => row.action === 'migrate'),
   fields: [
     field('imap_host_port', 'خادم IMAP الحالي: العنوان والمنفذ', 'Current IMAP server: host & port', FIELD_TYPES.TEXT, {
@@ -396,8 +403,8 @@ export const stepA6Mailboxes = {
   track: 'A',
   titleAr: 'صناديق البريد',
   titleEn: 'Mailboxes',
-  appliesTo: ['new', 'migration', 'redesign', 'email'],
-  requiredFor: ['new', 'migration', 'email'],
+  appliesTo: ['new', 'migration', 'redesign', 'email_new', 'email_migration'],
+  requiredFor: ['new', 'migration', 'email_new', 'email_migration'],
   fields: [
     table(
       'a6_mailboxes',
@@ -431,10 +438,11 @@ export const stepA7MigrationScope = {
   track: 'A',
   titleAr: 'نطاق الترحيل',
   titleEn: 'Migration scope',
-  appliesTo: ['migration', 'redesign', 'email'],
-  requiredFor: ['migration', 'email'],
+  // email_new excluded — nothing to migrate when there's nothing existing.
+  appliesTo: ['migration', 'redesign', 'email_migration'],
+  requiredFor: ['migration', 'email_migration'],
   visibleWhen: (answers) =>
-    ['migration', 'email'].includes(answers.project_type) ||
+    ['migration', 'email_migration'].includes(answers.project_type) ||
     (answers.a6_mailboxes || []).some((row) => row.action === 'migrate'),
   fields: [
     note('email_migration_group', 'ترحيل البريد', 'Email migration'),
@@ -519,8 +527,10 @@ export const stepA8Cutover = {
   track: 'A',
   titleAr: 'التحويل والإطلاق',
   titleEn: 'Cutover',
-  appliesTo: ['migration', 'redesign', 'email'],
-  requiredFor: ['migration', 'email'],
+  // Kept for both email subtypes — even a brand-new mailbox has a real
+  // go-live moment (the MX-record switch), just a lower-stakes one.
+  appliesTo: ['migration', 'redesign', 'email_new', 'email_migration'],
+  requiredFor: ['migration', 'email_new', 'email_migration'],
   fields: [
     field('golive_date', 'تاريخ الإطلاق المستهدف', 'Target go-live date', FIELD_TYPES.DATE, {
       required: true,
@@ -570,8 +580,8 @@ export const stepA11Contacts = {
   track: 'A',
   titleAr: 'جهات الاتصال والاعتمادات',
   titleEn: 'Contacts & approvals',
-  appliesTo: ['new', 'migration', 'redesign', 'email'],
-  requiredFor: ['new', 'migration', 'redesign', 'email'],
+  appliesTo: ['new', 'migration', 'redesign', 'email_new', 'email_migration'],
+  requiredFor: ['new', 'migration', 'redesign', 'email_new', 'email_migration'],
   fields: [
     field('technical_contact', 'المسؤول التقني: الاسم والجوال والبريد', 'Technical contact', FIELD_TYPES.TEXT, {
       required: true,
