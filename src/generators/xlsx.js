@@ -25,14 +25,14 @@ const SHEET_MAP = [
   { ar: 'بيانات المشروع', en: 'Project Details', steps: ['step0_start', 'a1_project_type', 'a2_current_site', 'a11_contacts'] },
   { ar: 'النطاق', en: 'Domain', steps: ['a3_domain'] },
   { ar: 'الاستضافة', en: 'Hosting', steps: ['a4_hosting', 'a10_ssl_security'] },
-  { ar: 'البريد الإلكتروني', en: 'Email', steps: ['a5_mail_current', 'a5b_mail_migration_access'] },
+  { ar: 'البريد الإلكتروني', en: 'Email', steps: ['a5_mail_current', 'a5b_mail_migration_access', 'a7c_mail_migration_scope'] },
   // a6_mailboxes deliberately absent here — it gets its own dedicated sheet
   // built separately below (with its live counter line), not the generic
   // section-sheet treatment.
   { ar: 'نطاق الترحيل', en: 'Migration Scope', steps: ['a7_migration_scope', 'a8_cutover'] },
   { ar: 'جرد الصفحات', en: 'Page Inventory', steps: ['a7b_page_inventory'] },
   { ar: 'الحسابات الخارجية', en: 'Third-Party Accounts', steps: ['a9_third_party'] },
-  { ar: 'الهوية والتصميم', en: 'Brand Identity', steps: ['a2b_brand_design'] },
+  { ar: 'الهوية والتصميم', en: 'Brand Identity', steps: ['a2b_design_direction', 'a2c_brand_identity'] },
   { ar: 'نماذج الموقع', en: 'Website Forms', steps: ['b1_forms'] },
   { ar: 'الفروع والتواصل', en: 'Branches & Contact', steps: ['b3_branches'] },
   { ar: 'الخدمات', en: 'Services', steps: ['b4_services'] },

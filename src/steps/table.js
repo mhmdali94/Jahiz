@@ -60,8 +60,15 @@ export function renderTableField(field) {
   if (field.helpAr) wrapper.appendChild(el('p', { class: 'table-field__help' }, field.helpAr));
 
   if (getRows(field.id).length === 0) {
-    const seeded = seedPrefilledRows(field);
-    if (seeded.length) setRows(field.id, seeded);
+    // `singleRow` tables (see renderRowCard) are a table-engine field that's
+    // really just "one upload slot beside this question" — logo, brand
+    // guidelines, a company profile PDF — seeded with its one permanent row
+    // up front so it never shows "+ إضافة صف" or row-management chrome.
+    if (field.singleRow) setRows(field.id, [emptyRow(field)]);
+    else {
+      const seeded = seedPrefilledRows(field);
+      if (seeded.length) setRows(field.id, seeded);
+    }
   }
 
   if (field.autoRows && AUTO_ROWS[field.autoRows]) {
@@ -86,12 +93,14 @@ export function renderTableField(field) {
   const cardsContainer = el('div', { class: 'row-cards' });
   wrapper.appendChild(cardsContainer);
 
-  const addBtn = el('button', { type: 'button', class: 'btn btn--secondary' }, `+ ${strings.nav.addRow}`);
-  addBtn.addEventListener('click', () => {
-    setRows(field.id, [...getRows(field.id), emptyRow(field)]);
-    renderRows();
-  });
-  wrapper.appendChild(addBtn);
+  if (!field.singleRow) {
+    const addBtn = el('button', { type: 'button', class: 'btn btn--secondary' }, `+ ${strings.nav.addRow}`);
+    addBtn.addEventListener('click', () => {
+      setRows(field.id, [...getRows(field.id), emptyRow(field)]);
+      renderRows();
+    });
+    wrapper.appendChild(addBtn);
+  }
 
   function updateCounter() {
     if (!counter) return;
@@ -145,42 +154,44 @@ export function renderTableField(field) {
 const WIDE_COLUMN_TYPES = new Set(['textarea', 'upload', 'radio']);
 
 function renderRowCard(field, row, index, rerender) {
-  const card = el('div', { class: 'row-card', dataset: { rowId: row._rowId } });
+  const card = el('div', { class: `row-card ${field.singleRow ? 'row-card--single' : ''}`, dataset: { rowId: row._rowId } });
 
-  const header = el('div', { class: 'row-card__header' }, [
-    el('span', { class: 'row-card__index' }, `#${index + 1}`),
-    el('div', { class: 'row-card__actions' }, [
-      el('button', {
-        type: 'button',
-        class: 'icon-btn',
-        title: strings.nav.duplicateRow,
-        'aria-label': `${strings.nav.duplicateRow} (صف ${index + 1})`,
-        onclick: () => {
-          // A duplicated row starts with no images of its own — the copy
-          // gets a fresh _rowId, and uploaded images are keyed to the
-          // original row's id, so there's nothing to carry over anyway.
-          const rows = getRows(field.id);
-          rows.splice(index + 1, 0, { ...row, _rowId: newRowId() });
-          setRows(field.id, rows);
-          rerender();
-        },
-      }, '⧉'),
-      el('button', {
-        type: 'button',
-        class: 'icon-btn icon-btn--danger',
-        title: strings.nav.deleteRow,
-        'aria-label': `${strings.nav.deleteRow} (صف ${index + 1})`,
-        onclick: () => {
-          const rows = getRows(field.id);
-          rows.splice(index, 1);
-          setRows(field.id, rows);
-          deleteImagesForRow(field.id, row._rowId); // fire-and-forget cleanup, don't block the UI on it
-          rerender();
-        },
-      }, '×'),
-    ]),
-  ]);
-  card.appendChild(header);
+  if (!field.singleRow) {
+    const header = el('div', { class: 'row-card__header' }, [
+      el('span', { class: 'row-card__index' }, `#${index + 1}`),
+      el('div', { class: 'row-card__actions' }, [
+        el('button', {
+          type: 'button',
+          class: 'icon-btn',
+          title: strings.nav.duplicateRow,
+          'aria-label': `${strings.nav.duplicateRow} (صف ${index + 1})`,
+          onclick: () => {
+            // A duplicated row starts with no images of its own — the copy
+            // gets a fresh _rowId, and uploaded images are keyed to the
+            // original row's id, so there's nothing to carry over anyway.
+            const rows = getRows(field.id);
+            rows.splice(index + 1, 0, { ...row, _rowId: newRowId() });
+            setRows(field.id, rows);
+            rerender();
+          },
+        }, '⧉'),
+        el('button', {
+          type: 'button',
+          class: 'icon-btn icon-btn--danger',
+          title: strings.nav.deleteRow,
+          'aria-label': `${strings.nav.deleteRow} (صف ${index + 1})`,
+          onclick: () => {
+            const rows = getRows(field.id);
+            rows.splice(index, 1);
+            setRows(field.id, rows);
+            deleteImagesForRow(field.id, row._rowId); // fire-and-forget cleanup, don't block the UI on it
+            rerender();
+          },
+        }, '×'),
+      ]),
+    ]);
+    card.appendChild(header);
+  }
 
   const fieldsGrid = el('div', { class: 'row-card__fields' });
   for (const col of field.columns) {

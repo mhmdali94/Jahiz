@@ -5,7 +5,7 @@
 
 import { el, labelWithLatinTerm } from './dom.js';
 import { FIELD_TYPES, isFieldVisible } from '../schema/index.js';
-import { getValue, setValue, isUnknown, setUnknown, getOwner, setOwner, getAnswers } from './state.js';
+import { getValue, setValue, isUnknown, setUnknown, getAnswers } from './state.js';
 import { strings } from '../strings.js';
 import { renderUploadField } from './upload.js';
 
@@ -263,7 +263,6 @@ function buildUnknownToggle(field, mainInput) {
     onchange: (e) => {
       setUnknown(field.id, e.target.checked);
       setDisabled(mainInput, e.target.checked);
-      ownerSelect.hidden = !e.target.checked;
     },
   });
   const label = el('label', { class: 'unknown-toggle__label', for: `f-${field.id}-unknown` }, [
@@ -271,20 +270,8 @@ function buildUnknownToggle(field, mainInput) {
     ` ${strings.unknownToggle.labelAr}`,
   ]);
 
-  const ownerSelect = el('select', {
-    class: 'input input--owner',
-    hidden: !isUnknown(field.id),
-    'aria-label': strings.unknownToggle.ownerPromptAr,
-    onchange: (e) => setOwner(field.id, e.target.value),
-  });
-  ownerSelect.appendChild(el('option', { value: '' }, strings.unknownToggle.ownerPromptAr));
-  for (const owner of field.ownerOptions || []) {
-    ownerSelect.appendChild(el('option', { value: owner.value, selected: getOwner(field.id) === owner.value }, owner.ar));
-  }
-
   setDisabled(mainInput, isUnknown(field.id));
   wrap.appendChild(label);
-  wrap.appendChild(ownerSelect);
   return wrap;
 }
 

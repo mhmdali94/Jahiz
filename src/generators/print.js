@@ -8,17 +8,7 @@
 
 import { getVisibleSteps, PROJECT_TYPE_LIST } from '../schema/index.js';
 import { prepareStepModel } from './prepareModel.js';
-import { computeMissingItemsByOwner, computeScopeSummary } from '../steps/review.js';
-
-const OWNER_LABELS = {
-  previous_developer: 'المطوّر السابق',
-  hosting_company: 'شركة الاستضافة',
-  mail_provider: 'مزوّد البريد',
-  it_department: 'قسم تقنية المعلومات',
-  management: 'الإدارة',
-  accountant: 'المحاسب',
-  unknown: 'لا أعرف',
-};
+import { computeMissingItems, computeScopeSummary } from '../steps/review.js';
 
 function escapeHtml(str) {
   return String(str ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -42,17 +32,15 @@ function renderDataTable(table) {
 function buildReportHtml(answers, version) {
   const projectTypeAr = PROJECT_TYPE_LIST.find((t) => t.value === answers.project_type)?.ar || 'غير محدد';
   const visibleSteps = getVisibleSteps(answers).filter((s) => s.id !== 'passwords');
-  const missingByOwner = computeMissingItemsByOwner(answers);
+  const missingItems = computeMissingItems(answers);
   const scope = computeScopeSummary(answers);
   const dateStr = new Date().toLocaleString('ar-SA');
 
   let missingHtml = '';
-  if (missingByOwner.size) {
-    missingHtml = `<section class="print-section"><h2>بنود ناقصة تحتاج إجراء</h2>`;
-    for (const [owner, items] of missingByOwner) {
-      missingHtml += `<h4>${OWNER_LABELS[owner] || owner}</h4><ul>${items.map((i) => `<li>${escapeHtml(i.field.labelAr)}</li>`).join('')}</ul>`;
-    }
-    missingHtml += `</section>`;
+  if (missingItems.length) {
+    missingHtml = `<section class="print-section"><h2>بنود ناقصة تحتاج إجراء</h2>
+      <ul>${missingItems.map((i) => `<li>${escapeHtml(i.field.labelAr)}</li>`).join('')}</ul>
+    </section>`;
   }
 
   const scopeHtml = `<section class="print-section"><h2>ما سنقوم به / خارج النطاق</h2>

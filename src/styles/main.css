@@ -319,7 +319,6 @@ ul { margin: 0; padding-inline-start: 1.25rem; }
 
 .unknown-toggle { display: flex; align-items: center; gap: var(--space-3); margin-top: var(--space-2); flex-wrap: wrap; }
 .unknown-toggle__label { display: flex; align-items: center; gap: var(--space-1); font-size: 0.85rem; color: var(--ink-muted); cursor: pointer; }
-.input--owner { max-width: 16rem; }
 
 .note { background: var(--note-bg); border-radius: var(--radius-sm); padding: var(--space-3) var(--space-4); }
 .note--warning { background: var(--warn-bg); }
@@ -386,6 +385,10 @@ ul { margin: 0; padding-inline-start: 1.25rem; }
    sideways at any width. */
 .row-cards { display: flex; flex-direction: column; gap: var(--space-4); margin-bottom: var(--space-3); }
 .row-card { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); padding: var(--space-4); }
+/* A `singleRow` table (one permanent upload slot beside a question, no add/
+   delete chrome) shouldn't read as its own boxed card competing with the
+   question above it — flatten it back into a plain block. */
+.row-card--single { border: none; background: none; padding: 0; }
 .row-card__header {
   display: flex;
   align-items: center;
@@ -495,10 +498,6 @@ ul { margin: 0; padding-inline-start: 1.25rem; }
 
 .review-section { margin-bottom: var(--space-6); }
 .review-section--missing { background: var(--danger-bg); border-radius: var(--radius-sm); padding: var(--space-4); }
-.missing-items-group { margin-bottom: var(--space-4); }
-.missing-items-group:last-child { margin-bottom: 0; }
-.forward-message-wrap { margin-top: var(--space-2); }
-.forward-message { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: var(--space-3); white-space: pre-wrap; font-size: 0.85rem; margin-bottom: var(--space-2); }
 
 .warnings-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: var(--space-2); }
 .warnings-list__item { display: flex; justify-content: space-between; align-items: center; gap: var(--space-3); padding: var(--space-3); border-radius: var(--radius-sm); }

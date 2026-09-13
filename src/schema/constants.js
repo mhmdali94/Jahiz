@@ -61,16 +61,6 @@ export const TRACK_LIST = [
   { value: TRACKS.B, ar: 'محتوى الموقع', desc: 'الخدمات، المنتجات، المشاريع' },
 ];
 
-export const OWNER_OPTIONS = [
-  { value: 'previous_developer', ar: 'المطوّر السابق' },
-  { value: 'hosting_company', ar: 'شركة الاستضافة' },
-  { value: 'mail_provider', ar: 'مزوّد البريد' },
-  { value: 'it_department', ar: 'قسم تقنية المعلومات' },
-  { value: 'management', ar: 'الإدارة' },
-  { value: 'accountant', ar: 'المحاسب' },
-  { value: 'unknown', ar: 'لا أعرف' },
-];
-
 export const DECISION_LEVEL = {
   TECHNICAL: 'technical', // the technical contact can answer
   DECISION_MAKER: 'decision_maker', // needs the person who signs off
@@ -81,7 +71,11 @@ export const DECISION_LEVEL = {
  * `allowUnknown` defaults true for real data-collection questions — every
  * credential/access-style field gets the "لا أعرف" toggle per spec. Purely
  * structural fields (radios that drive branching, table columns, etc.) opt
- * out explicitly with `{ allowUnknown: false }`.
+ * out explicitly with `{ allowUnknown: false }`. Checking "لا أعرف" used to
+ * also ask "who has this info?" (grouping missing items by owner, with a
+ * forward-ready message per owner) — removed on user feedback as one
+ * follow-up question too many; missing items now just land in one flat
+ * list on the review screen (see review.js computeMissingItems).
  */
 export function field(id, labelAr, labelEn, type = FIELD_TYPES.TEXT, extra = {}) {
   return {
@@ -90,7 +84,6 @@ export function field(id, labelAr, labelEn, type = FIELD_TYPES.TEXT, extra = {})
     labelEn,
     type,
     allowUnknown: true,
-    ownerOptions: OWNER_OPTIONS,
     required: false,
     decisionLevel: DECISION_LEVEL.TECHNICAL,
     ...extra,
@@ -110,6 +103,22 @@ export function table(id, labelAr, labelEn, columns, extra = {}) {
 /** A column inside a `table()` field — same shape as a field but no owner/unknown toggle. */
 export function column(id, labelAr, labelEn, type = FIELD_TYPES.TEXT, extra = {}) {
   return { id, labelAr, labelEn, type, required: false, ...extra };
+}
+
+/**
+ * One permanent upload slot rendered right beside a question — e.g. "does a
+ * white-background logo exist?" gets its upload right there instead of
+ * leaving the client to find it again in the files_assets checklist at the
+ * end. Reuses the table engine (so it gets the same IndexedDB storage/zip
+ * export as every other upload) but with `singleRow: true` so table.js
+ * renders it as one plain widget — no "+ إضافة صف", no row number, no
+ * duplicate/delete buttons, since there's nothing to manage.
+ */
+export function uploadSlot(id, labelAr, labelEn, zipPath, extra = {}) {
+  return table(id, labelAr, labelEn, [column('file', 'الملف', 'File', FIELD_TYPES.UPLOAD, { zipPath })], {
+    singleRow: true,
+    ...extra,
+  });
 }
 
 /** A non-input note rendered inline (warnings, security banners, section dividers). */

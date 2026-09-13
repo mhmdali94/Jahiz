@@ -140,7 +140,6 @@ export function mergeDraftAnswers(currentAnswers, importedAnswers, mode) {
       if (field.type === 'static') continue;
       if (field.id in importedAnswers) merged[field.id] = importedAnswers[field.id];
       if (`${field.id}__unknown` in importedAnswers) merged[`${field.id}__unknown`] = importedAnswers[`${field.id}__unknown`];
-      if (`${field.id}__owner` in importedAnswers) merged[`${field.id}__owner`] = importedAnswers[`${field.id}__owner`];
     }
   }
   return merged;

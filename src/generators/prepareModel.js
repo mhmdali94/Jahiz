@@ -1,12 +1,10 @@
 // Turns the raw `answers` object into plain, presentation-ready data —
-// resolved option labels, "لا أعرف" rows spelled out with their owner, table
-// rows as arrays of formatted cells — so xlsx.js (and any future generator)
-// never has to know about the schema's internal value encoding.
+// resolved option labels, "لا أعرف" rows spelled out, table rows as arrays
+// of formatted cells — so xlsx.js (and any future generator) never has to
+// know about the schema's internal value encoding.
 
-import { OWNER_OPTIONS, FIELD_TYPES } from '../schema/constants.js';
+import { FIELD_TYPES } from '../schema/constants.js';
 import { isFieldVisible } from '../schema/index.js';
-
-const OWNER_LABELS = Object.fromEntries(OWNER_OPTIONS.map((o) => [o.value, o.ar]));
 
 function optionLabel(options, value) {
   return options?.find((o) => o.value === value)?.ar ?? value ?? '';
@@ -30,14 +28,12 @@ export function formatValue(spec, rawValue) {
 export function formatFieldRow(field, answers) {
   const isUnknown = !!answers[field.id + '__unknown'];
   if (isUnknown) {
-    const owner = OWNER_LABELS[answers[field.id + '__owner']] || '';
     return {
       itemAr: field.labelAr,
       itemEn: field.labelEn,
       answer: 'لا أعرف / ليس لدي',
-      notes: owner ? `من يملك هذه المعلومة: ${owner}` : 'من يملك هذه المعلومة: غير محدد',
+      notes: '',
       isUnknown: true,
-      owner: answers[field.id + '__owner'] || 'unknown',
     };
   }
   return {

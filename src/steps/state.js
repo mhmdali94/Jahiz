@@ -2,12 +2,10 @@
 // Shape of `answers`:
 //   answers[field.id]              -> the value (string / number / array-of-rows for tables)
 //   answers[field.id + '__unknown'] -> true when the "لا أعرف" toggle is on
-//   answers[field.id + '__owner']   -> owner value chosen for that toggle
 // Table rows are plain objects keyed by column id, plus an internal `_rowId`
 // used as a DOM/list key (never rendered, never exported to generators).
 
 const UNKNOWN_SUFFIX = '__unknown';
-const OWNER_SUFFIX = '__owner';
 
 let answers = {};
 const listeners = new Set();
@@ -36,15 +34,6 @@ export function isUnknown(fieldId) {
 
 export function setUnknown(fieldId, unknown) {
   answers = { ...answers, [fieldId + UNKNOWN_SUFFIX]: unknown };
-  notify();
-}
-
-export function getOwner(fieldId) {
-  return answers[fieldId + OWNER_SUFFIX];
-}
-
-export function setOwner(fieldId, owner) {
-  answers = { ...answers, [fieldId + OWNER_SUFFIX]: owner };
   notify();
 }
 

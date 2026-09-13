@@ -1,7 +1,7 @@
 // The review screen: readiness score + traffic lights, automatic warnings,
-// the call agenda, the in-scope/out-of-scope summary, items grouped by
-// owner with ready-to-forward messages, and the decision-maker group. This
-// is where "kill the discovery meeting" actually cashes out — see the
+// the call agenda, the in-scope/out-of-scope summary, a flat list of
+// "لا أعرف" items still missing, and the decision-maker group. This is
+// where "kill the discovery meeting" actually cashes out — see the
 // BUILT TO ELIMINATE MEETINGS section of the spec.
 //
 // Warning checks are heuristics over the answers shape, not a rules engine —
@@ -91,7 +91,7 @@ export function computeWarnings(answers) {
   }
 
   if (migratingCount > 0 && (!answers.total_data_size || !answers.total_data_size.trim?.())) {
-    push(warning('migrate_no_size_given', {}, 'a7_migration_scope'));
+    push(warning('migrate_no_size_given', {}, 'a7c_mail_migration_scope'));
   }
 
   const pageRows = Array.isArray(answers.page_inventory) ? answers.page_inventory : [];
@@ -99,9 +99,9 @@ export function computeWarnings(answers) {
   if (redirectsMissingTarget > 0) push(warning('redirect_missing_target', { count: redirectsMissingTarget }, 'a7b_page_inventory'));
 
   if (Array.isArray(answers.logo_formats) && answers.logo_formats.includes('jpg_only')) {
-    push(warning('logo_jpg_only', {}, 'a2b_brand_design'));
+    push(warning('logo_jpg_only', {}, 'a2c_brand_identity'));
   }
-  if (answers.rebrand_planned === 'yes') push(warning('rebrand_planned', {}, 'a2b_brand_design'));
+  if (answers.rebrand_planned === 'yes') push(warning('rebrand_planned', {}, 'a2c_brand_identity'));
 
   const leadershipRows = Array.isArray(answers.leadership) ? answers.leadership : [];
   const consentMissing = leadershipRows.filter((r) => r.consent_to_publish === 'no' || r.consent_to_publish === 'not_asked').length;
@@ -180,7 +180,7 @@ export function computeScopeSummary(answers) {
 }
 
 // ---------------------------------------------------------------------------
-// Missing items grouped by owner, decision-maker items, call agenda
+// Missing items, decision-maker items, call agenda
 // ---------------------------------------------------------------------------
 function collectUnknownItems(answers) {
   const visibleSteps = getVisibleSteps(answers);
@@ -189,23 +189,14 @@ function collectUnknownItems(answers) {
     for (const field of step.fields) {
       if (field.type === 'static' || !field.allowUnknown) continue;
       if (!isFieldVisible(field, answers)) continue;
-      if (answers[field.id + '__unknown']) {
-        items.push({ field, step, owner: answers[field.id + '__owner'] || 'unknown' });
-      }
+      if (answers[field.id + '__unknown']) items.push({ field, step });
     }
   }
   return items;
 }
 
-export function computeMissingItemsByOwner(answers) {
-  const items = collectUnknownItems(answers);
-  const byOwner = new Map();
-  for (const item of items) {
-    const list = byOwner.get(item.owner) || [];
-    list.push(item);
-    byOwner.set(item.owner, list);
-  }
-  return byOwner;
+export function computeMissingItems(answers) {
+  return collectUnknownItems(answers);
 }
 
 export function computeDecisionMakerItems(answers) {
@@ -227,10 +218,6 @@ export function computeCallAgenda(answers, warnings) {
     if (w.severity === 'note') continue;
     items.push({ textAr: w.textAr, reason: strings.callAgenda.reasons.reviewWarning });
   }
-  const unknownWithUnknownOwner = collectUnknownItems(answers).filter((i) => i.owner === 'unknown');
-  for (const item of unknownWithUnknownOwner) {
-    items.push({ textAr: item.field.labelAr, reason: strings.callAgenda.reasons.unknownWithUnknownOwner });
-  }
   const unansweredDecisions = computeDecisionMakerItems(answers).filter((i) => !i.answered);
   for (const item of unansweredDecisions) {
     items.push({ textAr: item.field.labelAr, reason: strings.callAgenda.reasons.needsDecisionMaker });
@@ -246,7 +233,7 @@ export function renderReviewScreen({ onEditStep }) {
   const warnings = computeWarnings(answers);
   const readiness = computeReadiness(answers);
   const scope = computeScopeSummary(answers);
-  const byOwner = computeMissingItemsByOwner(answers);
+  const missingItems = computeMissingItems(answers);
   const decisionItems = computeDecisionMakerItems(answers);
   const agenda = computeCallAgenda(answers, warnings);
 
@@ -262,7 +249,7 @@ export function renderReviewScreen({ onEditStep }) {
 
   root.appendChild(renderStepLights(readiness.perStep, onEditStep));
 
-  if (byOwner.size) root.appendChild(renderMissingItems(byOwner));
+  if (missingItems.length) root.appendChild(renderMissingItems(missingItems));
   if (warnings.length) root.appendChild(renderWarnings(warnings, onEditStep));
   if (agenda.items.length) root.appendChild(renderCallAgenda(agenda));
   root.appendChild(renderScopeSummary(scope));
@@ -358,53 +345,11 @@ function renderStepLights(perStep, onEditStep) {
   return wrap;
 }
 
-function renderMissingItems(byOwner) {
-  const ownerLabels = Object.fromEntries(
-    [
-      ['previous_developer', 'المطوّر السابق'],
-      ['hosting_company', 'شركة الاستضافة'],
-      ['mail_provider', 'مزوّد البريد'],
-      ['it_department', 'قسم تقنية المعلومات'],
-      ['management', 'الإدارة'],
-      ['accountant', 'المحاسب'],
-      ['unknown', 'لا أعرف'],
-    ],
-  );
-
+function renderMissingItems(items) {
   const section = el('section', { class: 'review-section review-section--missing' });
   section.appendChild(el('h2', {}, strings.missingItems.titleAr));
-
-  for (const [owner, items] of byOwner) {
-    const group = el('div', { class: 'missing-items-group' });
-    group.appendChild(el('h3', {}, ownerLabels[owner] || owner));
-    group.appendChild(el('ul', {}, items.map((i) => el('li', {}, i.field.labelAr))));
-    if (owner !== 'unknown') group.appendChild(renderForwardMessage(items));
-    section.appendChild(group);
-  }
+  section.appendChild(el('ul', {}, items.map((i) => el('li', {}, i.field.labelAr))));
   return section;
-}
-
-function renderForwardMessage(items) {
-  const lines = items.map((item, i) => `${toArabicOrdinal(i + 1)}. ${item.field.labelAr}`).join('\n');
-  const message = `${strings.forwardMessage.greetingAr}\n${lines}\n${strings.forwardMessage.closingAr}`;
-  const pre = el('pre', { class: 'forward-message' }, message);
-  const copyBtn = el('button', {
-    class: 'btn btn--secondary btn--small',
-    onclick: async () => {
-      try {
-        await navigator.clipboard.writeText(message);
-        copyBtn.textContent = strings.forwardMessage.copiedAr;
-        setTimeout(() => (copyBtn.textContent = strings.forwardMessage.copyButtonAr), 1500);
-      } catch {
-        /* clipboard unavailable — the text is still selectable/visible */
-      }
-    },
-  }, strings.forwardMessage.copyButtonAr);
-  return el('div', { class: 'forward-message-wrap' }, [pre, copyBtn]);
-}
-
-function toArabicOrdinal(n) {
-  return String(n).replace(/\d/g, (d) => '٠١٢٣٤٥٦٧٨٩'[d]);
 }
 
 function renderWarnings(warnings, onEditStep) {

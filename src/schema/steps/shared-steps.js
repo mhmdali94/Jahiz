@@ -129,23 +129,19 @@ export const stepSaudiRequirements = {
 // ---------------------------------------------------------------------------
 // الملفات والصور (Files & assets)
 // A checklist of what to send, not a form to type answers into — every row
-// is either "uploaded here" or "here's a Drive/WeTransfer link".
+// is either "uploaded here" or "here's a Drive/WeTransfer link". Kept short
+// on purpose: anything with its own yes/no question elsewhere (logo,
+// favicon, brand guidelines, licensed fonts, company profile) now has an
+// uploadSlot right beside that question instead of a row here, and anything
+// that's really per-item (product/project/team photos, certificates) has
+// its own upload column on that item's row in the relevant table — this
+// list is only for company-level assets with no single question to sit
+// next to.
 // ---------------------------------------------------------------------------
 const FILE_ASSET_TYPES = [
-  { id: 'logo_vector', ar: 'شعار الشركة (فيكتور: AI / EPS / SVG)' },
-  { id: 'logo_png_transparent', ar: 'الشعار بصيغة PNG بخلفية شفافة' },
-  { id: 'logo_white', ar: 'نسخة بيضاء من الشعار للخلفيات الداكنة' },
-  { id: 'favicon', ar: 'أيقونة الموقع (Favicon)' },
-  { id: 'brand_guidelines', ar: 'دليل الهوية البصرية والألوان' },
-  { id: 'licensed_fonts', ar: 'ملفات الخطوط المرخّصة' },
-  { id: 'product_photos', ar: 'صور المنتجات عالية الدقة' },
-  { id: 'project_photos', ar: 'صور المشاريع المنفذة' },
   { id: 'office_photos', ar: 'صور المقر والمستودعات' },
-  { id: 'team_photos', ar: 'صور فريق العمل' },
-  { id: 'company_profile_pdf', ar: 'الملف التعريفي للشركة (PDF)' },
   { id: 'product_catalogs_pdf', ar: 'كتالوجات المنتجات (PDF)' },
   { id: 'client_logos', ar: 'شعارات العملاء' },
-  { id: 'certificates', ar: 'الشهادات والتراخيص' },
   { id: 'promo_videos', ar: 'فيديوهات ترويجية' },
 ];
 

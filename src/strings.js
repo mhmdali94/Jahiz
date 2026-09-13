@@ -70,8 +70,6 @@ export const strings = {
   unknownToggle: {
     labelAr: 'لا أعرف / ليس لدي',
     labelEn: "I don't know / I don't have it",
-    ownerPromptAr: 'من يملك هذه المعلومة؟',
-    ownerPromptEn: 'Who has this information?',
   },
 
   upload: {
@@ -93,22 +91,12 @@ export const strings = {
     counterAr: '{total} صندوق بريد — {created} جديد، {migrated} مُرحّل، {deleted} محذوف.',
   },
 
-  forwardMessage: {
-    titleAr: 'رسالة جاهزة للإرسال',
-    greetingAr: 'السلام عليكم، نعمل حالياً على نقل موقع الشركة ونحتاج منكم التالي:',
-    closingAr: 'شاكرين تعاونكم.',
-    copyButtonAr: 'نسخ الرسالة',
-    copiedAr: 'تم النسخ',
-    groupedByOwnerTitleAr: 'رسائل جاهزة حسب الجهة',
-  },
-
   callAgenda: {
     titleAr: 'نقاط تحتاج مكالمة',
     titleEn: 'Points that need a call',
     estimateAr: '{count} نقاط — حوالي {minutes} دقيقة.',
     reasons: {
       conflictingAnswers: 'تعارض في الإجابات',
-      unknownWithUnknownOwner: 'لا أحد يعرف مَن يملك هذه المعلومة',
       needsDecisionMaker: 'يحتاج قرار صاحب القرار مباشرة',
       reviewWarning: 'مرتبطة بتنبيه في شاشة المراجعة',
     },

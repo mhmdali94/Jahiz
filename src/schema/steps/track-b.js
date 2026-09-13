@@ -19,6 +19,7 @@ import {
   SOCIAL_PLATFORMS,
   DEPARTMENT_ROLES,
   LANGUAGE_SCOPE,
+  uploadSlot,
 } from '../constants.js';
 
 const ARABIC_ONLY_NOTE = note(
@@ -464,6 +465,9 @@ export const stepB9AdditionalInfo = {
     field('years_experience', 'عدد سنوات الخبرة', 'Years of experience', FIELD_TYPES.NUMBER),
     field('founding_story', 'قصة تأسيس الشركة ومن المؤسس', 'Founding story and founder', FIELD_TYPES.TEXTAREA),
     field('company_profile_pdf', 'هل يوجد ملف تعريفي للشركة (PDF)؟', 'Is there a company profile PDF?', FIELD_TYPES.RADIO, { options: YES_NO }),
+    uploadSlot('company_profile_pdf_file', 'ارفع الملف التعريفي', 'Upload the company profile', 'company/', {
+      visibleWhen: (a) => a.company_profile_pdf === 'yes',
+    }),
     field('testimonials', 'هل يوجد شهادات أو تقييمات عملاء للنشر؟', 'Publishable client testimonials?', FIELD_TYPES.TEXTAREA),
     field('job_openings', 'هل توجد وظائف شاغرة حالياً؟', 'Any current job openings?', FIELD_TYPES.TEXTAREA),
     field('warranty_period', 'مدة الضمان على المنتجات', 'Product warranty period', FIELD_TYPES.TEXT),

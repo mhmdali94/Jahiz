@@ -32,6 +32,7 @@ import {
   THIRD_PARTY_SERVICES,
   PROJECT_TYPE_LIST,
   PROJECT_TYPE_GROUPS,
+  uploadSlot,
 } from '../constants.js';
 
 // ---------------------------------------------------------------------------
@@ -65,7 +66,10 @@ export const stepA2CurrentSite = {
   track: 'A',
   titleAr: 'الموقع الحالي',
   titleEn: 'Current website',
-  appliesTo: ['migration', 'redesign', 'email_new', 'email_migration'],
+  // Website-only — CMS platform, staging, content to preserve are all
+  // website concerns with nothing to do with a mail-only project, now that
+  // mail is its own separate service (see PROJECT_TYPE_GROUPS).
+  appliesTo: ['migration', 'redesign'],
   requiredFor: ['migration', 'redesign'],
   fields: [
     field('current_url', 'رابط الموقع الحالي', 'Current website URL', FIELD_TYPES.URL, { required: true }),
@@ -89,14 +93,17 @@ export const stepA2CurrentSite = {
 };
 
 // ---------------------------------------------------------------------------
-// A2b — الهوية البصرية وتوجّه التصميم (Brand identity & design direction)
-// "This is the step that prevents revision rounds" — give it room.
+// A2b — توجّه التصميم (Design direction)
+// Split from one combined "identity + direction" step on user feedback — 20+
+// fields in a single screen read as a wall of questions. Direction (how much
+// changes, what to keep, desired feel, references) goes first since
+// redesign_degree sets the tone for decisions later in this step and in A2c.
 // ---------------------------------------------------------------------------
-export const stepA2bBrandDesign = {
-  id: 'a2b_brand_design',
+export const stepA2bDesignDirection = {
+  id: 'a2b_design_direction',
   track: 'A',
-  titleAr: 'الهوية البصرية وتوجّه التصميم',
-  titleEn: 'Brand identity & design direction',
+  titleAr: 'توجّه التصميم',
+  titleEn: 'Design direction',
   appliesTo: ['new', 'migration', 'redesign'],
   requiredFor: ['new', 'migration', 'redesign'],
   fields: [
@@ -110,31 +117,6 @@ export const stepA2bBrandDesign = {
     field('must_keep', 'ما الذي يجب الحفاظ عليه كما هو بالضبط؟', 'What must stay exactly as it is?', FIELD_TYPES.TEXTAREA),
     field('sections_to_remove', 'هل يوجد صفحات أو أقسام يجب حذفها؟', 'Any pages or sections to remove?', FIELD_TYPES.TEXTAREA),
 
-    note('logo_group', 'الشعار (Logo)', 'Logo'),
-    field('logo_approved', 'هل الشعار الحالي معتمد أم يحتاج تحديثاً؟', 'Is the current logo approved, or does it need updating?', FIELD_TYPES.RADIO, {
-      options: [{ value: 'approved', ar: 'معتمد' }, { value: 'needs_update', ar: 'يحتاج تحديثاً' }],
-    }),
-    field('logo_formats', 'الصيغ المتوفرة للشعار', 'Available logo formats', FIELD_TYPES.SELECT, {
-      options: LOGO_FORMATS,
-      multiple: true,
-      flagsReview: 'logo_jpg_only',
-      helpAr: 'إن كانت لديك JPG فقط، سيحتاج الشعار لإعادة رسم بصيغة فيكتور — هذا يستحق معرفته الآن.',
-    }),
-    field('logo_horizontal_square', 'هل يوجد نسخة أفقية ونسخة مربعة من الشعار؟', 'Horizontal and square versions available?', FIELD_TYPES.RADIO, { options: YES_NO }),
-    field('logo_white_version', 'هل يوجد نسخة بيضاء للخلفيات الداكنة؟', 'A white version for dark backgrounds?', FIELD_TYPES.RADIO, { options: YES_NO }),
-    field('favicon_available', 'أيقونة الموقع (Favicon) — متوفرة؟', 'Favicon available?', FIELD_TYPES.RADIO, { options: YES_NO, latinTerm: 'Favicon' }),
-
-    note('colors_fonts_group', 'الألوان والخطوط', 'Colors & fonts'),
-    field('keep_current_colors', 'هل نحافظ على ألوان الموقع الحالي أم نغيّرها؟', 'Keep the current colors, or change them?', FIELD_TYPES.RADIO, {
-      options: [{ value: 'keep', ar: 'نحافظ عليها' }, { value: 'change', ar: 'نغيّرها' }],
-    }),
-    field('brand_colors_hex', 'أكواد الألوان المعتمدة (HEX) — الأساسي والثانوي', 'Approved brand colors (HEX) — primary & secondary', FIELD_TYPES.TEXT),
-    field('arabic_font', 'الخط العربي المستخدم', 'Arabic font in use', FIELD_TYPES.TEXT),
-    field('latin_font', 'الخط الإنجليزي المستخدم', 'Latin font in use', FIELD_TYPES.TEXT),
-    field('fonts_licensed', 'هل الخطوط مرخّصة للاستخدام على الويب؟', 'Are the fonts licensed for web use?', FIELD_TYPES.RADIO, { options: YES_NO }),
-    field('has_brand_guidelines', 'هل يوجد دليل هوية بصرية (Brand Guidelines)؟', 'Is there a brand guidelines document?', FIELD_TYPES.RADIO, { options: YES_NO }),
-
-    note('direction_group', 'توجّه التصميم', 'Design direction'),
     field('desired_impression', 'الانطباع المطلوب', 'Desired impression', FIELD_TYPES.SELECT, {
       options: IMPRESSION_OPTIONS,
       multiple: true,
@@ -144,12 +126,7 @@ export const stepA2bBrandDesign = {
       latinTerm: 'Dark Mode',
     }),
 
-    note('flags_group', 'تحذيرات مهمة', 'Important flags'),
-    field('rebrand_planned', 'هل هناك تغيير قادم للهوية البصرية (Rebranding)؟', 'Is a rebrand planned soon?', FIELD_TYPES.RADIO, {
-      options: YES_NO,
-      flagsReview: 'rebrand_planned',
-      helpAr: 'إن كانت الإجابة نعم: لا يُنصح ببناء الموقع على الهوية الحالية — سنوضح ذلك في ملاحظات المراجعة.',
-    }),
+    note('flags_group', 'قرارات تحتاج صاحب القرار', 'Decisions needing the decision maker'),
     field('identity_approved_by_management', 'هل الهوية الحالية معتمدة من الإدارة العليا؟', 'Is the current identity approved by management?', FIELD_TYPES.RADIO, {
       options: YES_NO,
       decisionLevel: 'decision_maker',
@@ -183,6 +160,69 @@ export const stepA2bBrandDesign = {
       ],
       { helpAr: '"أريد موقعي شبه هذا" أصدق جملة يقولها عميل — لكنها غامضة وحدها. هذا الجدول يحوّلها إلى تعليمات قابلة للتنفيذ.' },
     ),
+  ],
+};
+
+// ---------------------------------------------------------------------------
+// A2c — الهوية البصرية (Brand identity) — logo, colors, fonts. Every
+// yes/no about a FILE gets its upload right there (uploadSlot, conditional
+// on the answer) instead of sending the client hunting for it later in
+// "الملفات والصور المطلوبة" — see files_assets in shared-steps.js, which
+// now only holds assets with no single question of their own to sit next to.
+// Dropped "horizontal/square logo version?" — the upload itself makes that
+// self-evident, no need to ask about it separately first.
+// ---------------------------------------------------------------------------
+export const stepA2cBrandIdentity = {
+  id: 'a2c_brand_identity',
+  track: 'A',
+  titleAr: 'الهوية البصرية',
+  titleEn: 'Brand identity',
+  appliesTo: ['new', 'migration', 'redesign'],
+  requiredFor: ['new', 'migration', 'redesign'],
+  fields: [
+    note('logo_group', 'الشعار (Logo)', 'Logo'),
+    field('logo_approved', 'هل الشعار الحالي معتمد أم يحتاج تحديثاً؟', 'Is the current logo approved, or does it need updating?', FIELD_TYPES.RADIO, {
+      options: [{ value: 'approved', ar: 'معتمد' }, { value: 'needs_update', ar: 'يحتاج تحديثاً' }],
+    }),
+    field('logo_formats', 'الصيغ المتوفرة للشعار', 'Available logo formats', FIELD_TYPES.SELECT, {
+      options: LOGO_FORMATS,
+      multiple: true,
+      flagsReview: 'logo_jpg_only',
+      helpAr: 'إن كانت لديك JPG فقط، سيحتاج الشعار لإعادة رسم بصيغة فيكتور — هذا يستحق معرفته الآن.',
+    }),
+    uploadSlot('logo_file', 'ارفع ملف الشعار', 'Upload the logo file', 'company/logo/', {
+      helpAr: 'ارفع أي صيغة متوفرة الآن — فيكتور أفضل، لكن أي شيء يفيد.',
+    }),
+    field('logo_white_version', 'هل يوجد نسخة بيضاء للخلفيات الداكنة؟', 'A white version for dark backgrounds?', FIELD_TYPES.RADIO, { options: YES_NO }),
+    uploadSlot('logo_white_file', 'ارفع النسخة البيضاء من الشعار', 'Upload the white version', 'company/logo/', {
+      visibleWhen: (a) => a.logo_white_version === 'yes',
+    }),
+    field('favicon_available', 'أيقونة الموقع (Favicon) — متوفرة؟', 'Favicon available?', FIELD_TYPES.RADIO, { options: YES_NO, latinTerm: 'Favicon' }),
+    uploadSlot('favicon_file', 'ارفع أيقونة الموقع', 'Upload the favicon', 'company/', {
+      visibleWhen: (a) => a.favicon_available === 'yes',
+    }),
+
+    note('colors_fonts_group', 'الألوان والخطوط', 'Colors & fonts'),
+    field('keep_current_colors', 'هل نحافظ على ألوان الموقع الحالي أم نغيّرها؟', 'Keep the current colors, or change them?', FIELD_TYPES.RADIO, {
+      options: [{ value: 'keep', ar: 'نحافظ عليها' }, { value: 'change', ar: 'نغيّرها' }],
+    }),
+    field('brand_colors_hex', 'أكواد الألوان المعتمدة (HEX) — الأساسي والثانوي', 'Approved brand colors (HEX) — primary & secondary', FIELD_TYPES.TEXT),
+    field('arabic_font', 'الخط العربي المستخدم', 'Arabic font in use', FIELD_TYPES.TEXT),
+    field('latin_font', 'الخط الإنجليزي المستخدم', 'Latin font in use', FIELD_TYPES.TEXT),
+    field('fonts_licensed', 'هل الخطوط مرخّصة للاستخدام على الويب؟', 'Are the fonts licensed for web use?', FIELD_TYPES.RADIO, { options: YES_NO }),
+    uploadSlot('licensed_fonts_file', 'ارفع ملفات الخطوط', 'Upload the font files', 'company/fonts/', {
+      visibleWhen: (a) => a.fonts_licensed === 'yes',
+    }),
+    field('has_brand_guidelines', 'هل يوجد دليل هوية بصرية (Brand Guidelines)؟', 'Is there a brand guidelines document?', FIELD_TYPES.RADIO, { options: YES_NO }),
+    uploadSlot('brand_guidelines_file', 'ارفع دليل الهوية البصرية', 'Upload the brand guidelines', 'company/', {
+      visibleWhen: (a) => a.has_brand_guidelines === 'yes',
+    }),
+
+    field('rebrand_planned', 'هل هناك تغيير قادم للهوية البصرية (Rebranding)؟', 'Is a rebrand planned soon?', FIELD_TYPES.RADIO, {
+      options: YES_NO,
+      flagsReview: 'rebrand_planned',
+      helpAr: 'إن كانت الإجابة نعم: لا يُنصح ببناء الموقع على الهوية الحالية — سنوضح ذلك في ملاحظات المراجعة.',
+    }),
   ],
 };
 
@@ -304,11 +344,14 @@ export const stepA5MailCurrent = {
   track: 'A',
   titleAr: 'البريد الإلكتروني — الوضع الحالي',
   titleEn: 'Mail — current setup',
-  appliesTo: ['new', 'migration', 'redesign', 'email_new', 'email_migration'],
+  // Website types (new/migration/redesign) don't belong here — mail is its
+  // own separate service now (see PROJECT_TYPE_GROUPS), so a client who only
+  // picked website work should never be asked about their mail provider.
+  appliesTo: ['email_new', 'email_migration'],
   // A brand-new mailbox setup may genuinely have no "current" mail
   // provider to report (first business email ever) — optional there, but
   // required when migrating (we need to know what we're moving away from).
-  requiredFor: ['new', 'migration', 'email_migration'],
+  requiredFor: ['email_migration'],
   fields: [
     field('mail_provider_current', 'مزوّد البريد الحالي', 'Current mail provider', FIELD_TYPES.SELECT, {
       options: MAIL_PROVIDERS,
@@ -346,21 +389,23 @@ export const stepA5MailCurrent = {
 // prominent as its own step rather than folded into A5.
 // visibleWhen lets the wizard engine also surface it if any mailbox row later
 // gets marked "migrate", even for a project type that doesn't require it by
-// default (e.g. a redesign that turns out to touch mail after all).
+// default (e.g. a new-mail project that ends up importing one old mailbox).
+// Website types (new/migration/redesign) are excluded outright — mail is its
+// own separate service, not something a website-only migration implies.
 // ---------------------------------------------------------------------------
 export const stepA5bMailMigrationAccess = {
   id: 'a5b_mail_migration_access',
   track: 'A',
   titleAr: 'البريد — بيانات الخادم وطريقة الترحيل',
   titleEn: 'Mail — server settings & migration access',
-  // email_new deliberately excluded — brand-new mailboxes have no
-  // "migration access method" to discuss. The visibleWhen fallback below
-  // still catches it if a new-mail project ends up with a mailbox marked
-  // "migrate" anyway.
-  appliesTo: ['migration', 'email_migration'],
-  requiredFor: ['migration', 'email_migration'],
+  // email_new deliberately excluded from requiredFor — brand-new mailboxes
+  // have no "migration access method" to discuss. The visibleWhen fallback
+  // below still catches it if a new-mail project ends up with a mailbox
+  // marked "migrate" anyway.
+  appliesTo: ['email_migration'],
+  requiredFor: ['email_migration'],
   visibleWhen: (answers) =>
-    ['migration', 'email_migration'].includes(answers.project_type) ||
+    answers.project_type === 'email_migration' ||
     (answers.a6_mailboxes || []).some((row) => row.action === 'migrate'),
   fields: [
     field('imap_host_port', 'خادم IMAP الحالي: العنوان والمنفذ', 'Current IMAP server: host & port', FIELD_TYPES.TEXT, {
@@ -405,8 +450,10 @@ export const stepA6Mailboxes = {
   track: 'A',
   titleAr: 'صناديق البريد',
   titleEn: 'Mailboxes',
-  appliesTo: ['new', 'migration', 'redesign', 'email_new', 'email_migration'],
-  requiredFor: ['new', 'migration', 'email_new', 'email_migration'],
+  // Website types excluded — mail is its own separate service now, not
+  // something bundled automatically into a website build or migration.
+  appliesTo: ['email_new', 'email_migration'],
+  requiredFor: ['email_new', 'email_migration'],
   fields: [
     table(
       'a6_mailboxes',
@@ -433,21 +480,49 @@ export const stepA6Mailboxes = {
 };
 
 // ---------------------------------------------------------------------------
-// A7 — نطاق الترحيل (Migration scope)
+// A7 — نطاق ترحيل الموقع (Website migration scope)
+// Split from a combined "email + website migration scope" step on user
+// feedback — a client migrating only a website was being asked mailbox/
+// email-migration questions that belong to the separate mail service (see
+// stepA7cMailMigrationScope below). This step is website-only now.
 // ---------------------------------------------------------------------------
 export const stepA7MigrationScope = {
   id: 'a7_migration_scope',
   track: 'A',
-  titleAr: 'نطاق الترحيل',
-  titleEn: 'Migration scope',
-  // email_new excluded — nothing to migrate when there's nothing existing.
-  appliesTo: ['migration', 'redesign', 'email_migration'],
-  requiredFor: ['migration', 'email_migration'],
+  titleAr: 'نطاق ترحيل الموقع',
+  titleEn: 'Website migration scope',
+  appliesTo: ['migration', 'redesign'],
+  requiredFor: ['migration'],
+  fields: [
+    field('migrate_database', 'ترحيل قاعدة البيانات؟', 'Migrate the database?', FIELD_TYPES.RADIO, { options: YES_NO }),
+    field('migrate_media', 'ترحيل الصور والملفات المرفوعة؟', 'Migrate media / uploads?', FIELD_TYPES.RADIO, { options: YES_NO }),
+    field('migrate_users', 'ترحيل حسابات المستخدمين؟', 'Migrate registered users?', FIELD_TYPES.RADIO, { options: YES_NO }),
+    field('migrate_orders', 'ترحيل الطلبات والمبيعات؟', 'Migrate orders?', FIELD_TYPES.RADIO, { options: YES_NO }),
+    field('migrate_blog', 'ترحيل المدونة والمقالات؟', 'Migrate blog posts?', FIELD_TYPES.RADIO, { options: YES_NO }),
+    field('migrate_reviews', 'ترحيل تقييمات العملاء؟', 'Migrate reviews?', FIELD_TYPES.RADIO, { options: YES_NO }),
+    field('needs_301_redirects', 'هل هناك روابط قديمة يجب إعادة توجيهها (301)؟', 'Old URLs needing 301 redirects?', FIELD_TYPES.RADIO, {
+      options: YES_NO,
+      latinTerm: '301',
+    }),
+  ],
+};
+
+// ---------------------------------------------------------------------------
+// A7c — نطاق ترحيل البريد (Mail migration scope) — split out of the old
+// combined A7 (see comment above). Mail-only, so a website-only migration
+// never sees mailbox-content questions again.
+// ---------------------------------------------------------------------------
+export const stepA7cMailMigrationScope = {
+  id: 'a7c_mail_migration_scope',
+  track: 'A',
+  titleAr: 'نطاق ترحيل البريد',
+  titleEn: 'Mail migration scope',
+  appliesTo: ['email_migration'],
+  requiredFor: ['email_migration'],
   visibleWhen: (answers) =>
-    ['migration', 'email_migration'].includes(answers.project_type) ||
+    answers.project_type === 'email_migration' ||
     (answers.a6_mailboxes || []).some((row) => row.action === 'migrate'),
   fields: [
-    note('email_migration_group', 'ترحيل البريد', 'Email migration'),
     field('migrate_old_emails', 'هل تريد ترحيل الرسائل القديمة؟', 'Migrate old emails?', FIELD_TYPES.RADIO, { options: YES_NO }),
     field('migrate_how_far_back', 'إلى أي مدى زمني؟', 'How far back?', FIELD_TYPES.SELECT, {
       options: [
@@ -471,18 +546,6 @@ export const stepA7MigrationScope = {
     field('staff_keep_using_email', 'هل سيستمر الموظفون في استخدام البريد أثناء الترحيل؟', 'Will staff keep using email during the migration?', FIELD_TYPES.RADIO, { options: YES_NO }),
     field('who_reconfigures_devices', 'من سيعيد ضبط أجهزة الجوال وبرنامج Outlook للموظفين؟', 'Who will reconfigure staff phones and Outlook?', FIELD_TYPES.TEXT),
     field('staff_need_training', 'هل يحتاج الموظفون إلى شرح أو تدريب بعد الترحيل؟', 'Do staff need training after migration?', FIELD_TYPES.RADIO, { options: YES_NO }),
-
-    note('website_migration_group', 'ترحيل الموقع', 'Website migration'),
-    field('migrate_database', 'ترحيل قاعدة البيانات؟', 'Migrate the database?', FIELD_TYPES.RADIO, { options: YES_NO }),
-    field('migrate_media', 'ترحيل الصور والملفات المرفوعة؟', 'Migrate media / uploads?', FIELD_TYPES.RADIO, { options: YES_NO }),
-    field('migrate_users', 'ترحيل حسابات المستخدمين؟', 'Migrate registered users?', FIELD_TYPES.RADIO, { options: YES_NO }),
-    field('migrate_orders', 'ترحيل الطلبات والمبيعات؟', 'Migrate orders?', FIELD_TYPES.RADIO, { options: YES_NO }),
-    field('migrate_blog', 'ترحيل المدونة والمقالات؟', 'Migrate blog posts?', FIELD_TYPES.RADIO, { options: YES_NO }),
-    field('migrate_reviews', 'ترحيل تقييمات العملاء؟', 'Migrate reviews?', FIELD_TYPES.RADIO, { options: YES_NO }),
-    field('needs_301_redirects', 'هل هناك روابط قديمة يجب إعادة توجيهها (301)؟', 'Old URLs needing 301 redirects?', FIELD_TYPES.RADIO, {
-      options: YES_NO,
-      latinTerm: '301',
-    }),
   ],
 };
 
@@ -609,13 +672,15 @@ export const stepA11Contacts = {
 export const trackASteps = [
   stepA1ProjectType,
   stepA2CurrentSite,
-  stepA2bBrandDesign,
+  stepA2bDesignDirection,
+  stepA2cBrandIdentity,
   stepA3Domain,
   stepA4Hosting,
   stepA10SslSecurity,
   stepA5MailCurrent,
   stepA5bMailMigrationAccess,
   stepA6Mailboxes,
+  stepA7cMailMigrationScope,
   stepA7MigrationScope,
   stepA7bPageInventory,
   stepA8Cutover,

@@ -7,12 +7,21 @@
 
 export const CHAPTERS = [
   { id: 'basics', titleAr: 'البداية', stepIds: ['step0_start', 'a1_project_type'] },
-  { id: 'identity', titleAr: 'الموقع الحالي والهوية', stepIds: ['a2_current_site', 'a2b_brand_design'] },
-  { id: 'hosting', titleAr: 'الاستضافة والنطاق', stepIds: ['a3_domain', 'a4_hosting', 'a10_ssl_security'] },
+  { id: 'identity', titleAr: 'الموقع الحالي والهوية', stepIds: ['a2_current_site', 'a2b_design_direction', 'a2c_brand_identity'] },
+  {
+    id: 'hosting',
+    titleAr: 'الاستضافة والنطاق والترحيل',
+    // a7/a7b (website migration scope + page inventory) live here, not in
+    // "mail", now that a website-only migration never touches mail steps —
+    // see stepA7cMailMigrationScope for the mail-only counterpart. a8
+    // (cutover) sits here too since it pairs naturally with a3 (domain) even
+    // for a mail-only client (domain + go-live, nothing website-specific in it).
+    stepIds: ['a3_domain', 'a4_hosting', 'a10_ssl_security', 'a7_migration_scope', 'a7b_page_inventory', 'a8_cutover'],
+  },
   {
     id: 'mail',
-    titleAr: 'البريد والترحيل',
-    stepIds: ['a5_mail_current', 'a5b_mail_migration_access', 'a6_mailboxes', 'a7_migration_scope', 'a7b_page_inventory', 'a8_cutover'],
+    titleAr: 'البريد الإلكتروني',
+    stepIds: ['a5_mail_current', 'a5b_mail_migration_access', 'a6_mailboxes', 'a7c_mail_migration_scope'],
   },
   { id: 'contacts', titleAr: 'حسابات وجهات اتصال', stepIds: ['a9_third_party', 'a11_contacts'] },
   {
