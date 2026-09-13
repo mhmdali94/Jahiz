@@ -285,7 +285,14 @@ function renderStep(step, answers) {
 function focusStepHeader() {
   requestAnimationFrame(() => {
     const heading = stepBodyEl.querySelector('h1');
-    if (heading) heading.focus({ preventScroll: true });
+    if (!heading) return;
+    // Moving between steps used to leave the page at whatever scroll
+    // position the previous (possibly long) step ended on, so Next/Back
+    // could land you mid-page on a step you hadn't scrolled to yet.
+    // Drive the scroll ourselves (element.focus() alone won't always do
+    // this consistently across browsers) then focus without re-triggering it.
+    heading.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    heading.focus({ preventScroll: true });
   });
 }
 

@@ -12,8 +12,22 @@
 
 export const strings = {
   app: {
+    brandAr: 'جاهز',
+    brandLatin: 'Jahiz',
     titleAr: 'نموذج تسليم بيانات المشروع',
     titleEn: 'Project Handover & Data Collection Form',
+  },
+
+  welcome: {
+    taglineAr: 'نموذج تسليم بيانات المشاريع لعملاء جاهز',
+    servicesIntroAr: 'نقدّم خدمتين فقط:',
+    services: [
+      { titleAr: 'الموقع الإلكتروني', latin: 'Website', descAr: 'موقع جديد، إعادة تصميم، أو ترحيل من مزوّد آخر' },
+      { titleAr: 'البريد الإلكتروني', latin: 'Mail', descAr: 'إنشاء بريد جديد أو ترحيل بريد قائم' },
+    ],
+    loginPromptAr: 'أدخل الرمز الذي أرسلناه لكم للبدء',
+    submitAr: 'دخول',
+    codeErrorAr: 'الرمز غير صحيح. تأكد من كتابته كما وصلك تماماً.',
   },
 
   privacyBanner: {

@@ -31,6 +31,7 @@ import {
   COPY_OR_INSPIRE,
   THIRD_PARTY_SERVICES,
   PROJECT_TYPE_LIST,
+  PROJECT_TYPE_GROUPS,
 } from '../constants.js';
 
 // ---------------------------------------------------------------------------
@@ -48,7 +49,8 @@ export const stepA1ProjectType = {
       required: true,
       allowUnknown: false,
       options: PROJECT_TYPE_LIST,
-      helpAr: 'اختيارك هنا يحدّد الأسئلة التالية — لن نسألك عن الترحيل إذا كان مشروعك موقعاً جديداً بالكامل.',
+      optionGroups: PROJECT_TYPE_GROUPS,
+      helpAr: 'نقدّم خدمتين فقط: الموقع الإلكتروني والبريد الإلكتروني. اختيارك هنا يحدّد الأسئلة التالية — لن نسألك عن الترحيل إذا كان مشروعك موقعاً جديداً بالكامل.',
     }),
   ],
 };

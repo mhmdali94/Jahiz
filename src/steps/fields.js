@@ -206,7 +206,14 @@ export function createControl(spec, current, onChange, opts = {}) {
 
   if (spec.type === FIELD_TYPES.RADIO) {
     const group = el('div', { class: 'radio-group', id: domId, role: 'radiogroup' });
+    let lastGroupKey;
     for (const opt of spec.options) {
+      if (spec.optionGroups && opt.group !== lastGroupKey) {
+        lastGroupKey = opt.group;
+        if (opt.group && spec.optionGroups[opt.group]) {
+          group.appendChild(el('p', { class: 'radio-group__heading' }, spec.optionGroups[opt.group]));
+        }
+      }
       const radio = el('input', {
         type: 'radio',
         name: opts.name || spec.id,

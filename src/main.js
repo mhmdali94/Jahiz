@@ -19,8 +19,15 @@ async function start() {
   if (result.valid) {
     applyTokenPrefill(result.data);
     mountApp(root);
+  } else if (import.meta.env.DEV && result.reason === 'missing') {
+    // `npm run dev` only — skip the login speed bump when nobody bothered
+    // pasting a #t= link at all, so local testing doesn't need a serial
+    // issued every time. A link that IS present but invalid still shows
+    // the real welcome screen + error, so that path stays testable too.
+    // Vite strips this whole branch from `npm run build` output.
+    mountApp(root);
   } else {
-    renderInvalidLinkScreen(root);
+    renderWelcomeScreen(root, result.reason);
   }
 }
 
@@ -37,34 +44,62 @@ function applyTokenPrefill(data) {
   replaceAnswers(prefill);
 }
 
-function renderInvalidLinkScreen(root) {
+// Shown both on a client's very first visit (reason: 'missing', no error —
+// this IS the front door) and when a link failed to verify (any other
+// reason — same screen, plus a banner explaining the link didn't work,
+// since the recovery action — enter the short code — is identical either way.
+function renderWelcomeScreen(root, reason) {
   clear(root);
   const errorEl = el('p', { class: 'invalid-link__error', hidden: true });
 
-  const box = el('div', { class: 'invalid-link' }, [
-    el('h1', {}, 'رابط غير صالح'),
-    el('p', {}, strings.accessControl.invalidLinkAr),
-    el('div', { class: 'invalid-link__shortcode' }, [
-      el('label', { for: 'shortcode-input' }, strings.accessControl.shortCodeLabelAr),
-      el('input', { id: 'shortcode-input', class: 'input', placeholder: strings.accessControl.shortCodePlaceholder, dir: 'ltr' }),
-      el('button', {
-        type: 'button',
-        class: 'btn btn--primary',
-        onclick: async () => {
-          const input = document.getElementById('shortcode-input');
-          const result = await authenticateWithShortCode(input.value);
-          if (result.valid) {
-            applyTokenPrefill(result.data);
-            mountApp(root);
-          } else {
-            errorEl.hidden = false;
-          }
-        },
-      }, 'دخول'),
+  const submit = async () => {
+    const input = document.getElementById('shortcode-input');
+    const result = await authenticateWithShortCode(input.value);
+    if (result.valid) {
+      applyTokenPrefill(result.data);
+      clear(root);
+      mountApp(root);
+    } else {
+      errorEl.hidden = false;
+    }
+  };
+
+  const box = el('div', { class: 'welcome-screen' }, [
+    el('div', { class: 'welcome-screen__brand' }, [
+      el('h1', {}, [strings.app.brandAr, ' ', el('span', { class: 'latin-term', dir: 'ltr' }, strings.app.brandLatin)]),
+      el('p', { class: 'welcome-screen__tagline' }, strings.welcome.taglineAr),
     ]),
-    errorEl,
+
+    el('div', { class: 'welcome-services' }, [
+      el('p', { class: 'welcome-services__intro' }, strings.welcome.servicesIntroAr),
+      el('div', { class: 'welcome-services__cards' }, strings.welcome.services.map((svc) =>
+        el('div', { class: 'service-card' }, [
+          el('h3', {}, [svc.titleAr, ' ', el('span', { class: 'latin-term', dir: 'ltr' }, `(${svc.latin})`)]),
+          el('p', {}, svc.descAr),
+        ]),
+      )),
+    ]),
+
+    reason && reason !== 'missing'
+      ? el('p', { class: 'banner--warning' }, strings.accessControl.invalidLinkAr)
+      : null,
+
+    el('div', { class: 'invalid-link welcome-login' }, [
+      el('label', { for: 'shortcode-input' }, strings.welcome.loginPromptAr),
+      el('div', { class: 'invalid-link__shortcode' }, [
+        el('input', {
+          id: 'shortcode-input',
+          class: 'input',
+          placeholder: strings.accessControl.shortCodePlaceholder,
+          dir: 'ltr',
+          onkeydown: (e) => { if (e.key === 'Enter') submit(); },
+        }),
+        el('button', { type: 'button', class: 'btn btn--primary', onclick: submit }, strings.welcome.submitAr),
+      ]),
+      errorEl,
+    ]),
   ]);
-  errorEl.textContent = 'الرمز غير صحيح. تأكد من كتابته كما وصلك تماماً.';
+  errorEl.textContent = strings.welcome.codeErrorAr;
   root.appendChild(box);
 }
 

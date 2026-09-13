@@ -33,12 +33,21 @@ export const PROJECT_TYPES = {
   UNSURE: 'unsure',
 };
 
+// We only offer two services — website work and mail work — so the options
+// below carry a `group` and render under two clearly separate headings
+// (see optionGroups on the a1_project_type field) instead of one flat list
+// that mixes them together.
+export const PROJECT_TYPE_GROUPS = {
+  website: 'خدمة الموقع الإلكتروني',
+  mail: 'خدمة البريد الإلكتروني',
+};
+
 export const PROJECT_TYPE_LIST = [
-  { value: PROJECT_TYPES.NEW, ar: 'موقع جديد', latin: 'New build' },
-  { value: PROJECT_TYPES.MIGRATION, ar: 'ترحيل موقع قائم', latin: 'Website migration' },
-  { value: PROJECT_TYPES.REDESIGN, ar: 'إعادة تصميم (مع الحفاظ على المحتوى)', latin: 'Redesign' },
-  { value: PROJECT_TYPES.EMAIL_NEW, ar: 'إنشاء بريد إلكتروني جديد', latin: 'New mail setup' },
-  { value: PROJECT_TYPES.EMAIL_MIGRATION, ar: 'ترحيل بريد إلكتروني قائم', latin: 'Mail migration' },
+  { value: PROJECT_TYPES.NEW, ar: 'موقع جديد', latin: 'New build', group: 'website' },
+  { value: PROJECT_TYPES.REDESIGN, ar: 'إعادة تصميم (مع الحفاظ على المحتوى)', latin: 'Redesign', group: 'website' },
+  { value: PROJECT_TYPES.MIGRATION, ar: 'ترحيل موقع قائم', latin: 'Website migration', group: 'website' },
+  { value: PROJECT_TYPES.EMAIL_NEW, ar: 'إنشاء بريد إلكتروني جديد', latin: 'New mail setup', group: 'mail' },
+  { value: PROJECT_TYPES.EMAIL_MIGRATION, ar: 'ترحيل بريد إلكتروني قائم', latin: 'Mail migration', group: 'mail' },
   { value: PROJECT_TYPES.UNSURE, ar: 'لست متأكداً بعد', latin: 'Not sure yet' },
 ];
 

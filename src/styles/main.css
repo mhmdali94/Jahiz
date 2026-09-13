@@ -104,7 +104,27 @@ ul { margin: 0; padding-inline-start: 1.25rem; }
 }
 .draft-prompt__actions { display: flex; gap: var(--space-3); justify-content: center; margin-top: var(--space-4); }
 
-/* ---------- invalid link screen ---------- */
+/* ---------- welcome / login screen ---------- */
+.welcome-screen { max-width: 40rem; margin: 0 auto; padding: var(--space-8) var(--space-4) 4rem; }
+.welcome-screen__brand { text-align: center; margin-bottom: var(--space-8); }
+.welcome-screen__brand h1 { font-size: 2rem; margin-bottom: var(--space-2); }
+.welcome-screen__tagline { color: var(--ink-muted); }
+
+.welcome-services { margin-bottom: var(--space-8); }
+.welcome-services__intro { text-align: center; font-weight: 600; margin-bottom: var(--space-4); }
+.welcome-services__cards { display: flex; gap: var(--space-4); }
+.service-card {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--space-4);
+  text-align: center;
+}
+.service-card h3 { margin-bottom: var(--space-2); }
+.service-card p { margin: 0; color: var(--ink-muted); font-size: 0.9rem; }
+
+/* ---------- invalid link / short-code login ---------- */
 .invalid-link {
   max-width: 28rem;
   margin: 4rem auto;
@@ -114,6 +134,7 @@ ul { margin: 0; padding-inline-start: 1.25rem; }
   border-radius: var(--radius);
   text-align: center;
 }
+.welcome-login { margin: 0 auto; }
 .invalid-link__shortcode { display: flex; flex-direction: column; gap: var(--space-2); margin-top: var(--space-4); text-align: right; }
 .invalid-link__error { color: var(--danger); font-size: 0.85rem; margin-top: var(--space-2); }
 
@@ -225,6 +246,10 @@ ul { margin: 0; padding-inline-start: 1.25rem; }
 }
 .wizard-step__header h1 { margin-bottom: var(--space-2); }
 .wizard-step__title:focus { outline: none; }
+/* Scrolled to on every step change (see focusStepHeader in wizard.js) — this
+   keeps the sticky privacy banner (and, on mobile, the sticky menu button)
+   from landing on top of the heading it's supposed to reveal. */
+.wizard-step__title { scroll-margin-top: 4.5rem; }
 .wizard-step__optional-note { color: var(--ink-muted); font-size: 0.85rem; margin-bottom: var(--space-4); }
 .wizard-step__body { display: flex; flex-direction: column; gap: var(--space-6); }
 
@@ -265,6 +290,13 @@ ul { margin: 0; padding-inline-start: 1.25rem; }
 }
 
 .radio-group, .checkbox-group { display: flex; flex-direction: column; gap: var(--space-2); }
+.radio-group__heading {
+  margin: var(--space-2) 0 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--brand);
+}
+.radio-group__heading:first-child { margin-top: 0; }
 .radio-group__option, .checkbox-group__option {
   display: flex;
   align-items: flex-start;
@@ -558,6 +590,7 @@ ul { margin: 0; padding-inline-start: 1.25rem; }
   .sidebar-chapters { display: none; margin-top: var(--space-2); }
   .wizard-sidebar.is-open .sidebar-chapters { display: block; }
   .scope-summary { flex-direction: column; gap: var(--space-4); }
+  .welcome-services__cards { flex-direction: column; }
 }
 
 @media (max-width: 480px) {
