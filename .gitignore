@@ -10,5 +10,9 @@ cli/serials.json
 cli/*.key
 cli/private-key*
 
+# Bulk-issue exports (working files for handing codes out/tracking them —
+# not app config, shouldn't live in git)
+cli/bulk-issued-*.csv
+
 .DS_Store
 *.log
