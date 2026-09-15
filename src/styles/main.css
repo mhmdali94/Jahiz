@@ -246,6 +246,9 @@ ul { margin: 0; padding-inline-start: 1.25rem; }
 .draft-panel__summary { font-size: 0.85rem; }
 .draft-panel__error { color: var(--danger); font-size: 0.85rem; }
 
+.logout-panel { margin-top: var(--space-4); padding-top: var(--space-4); border-top: 1px solid var(--border); }
+.logout-panel__help { font-size: 0.8rem; color: var(--ink-muted); margin: var(--space-2) 0 0; }
+
 .wizard-main { flex: 1; min-width: 0; }
 
 .progress-bar { height: 6px; background: var(--border); border-radius: 999px; overflow: hidden; margin-bottom: var(--space-6); }

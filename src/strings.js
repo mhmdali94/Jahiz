@@ -176,6 +176,8 @@ export const strings = {
     invalidLinkEn: 'This link is invalid or has been revoked. Please contact us for a new one.',
     shortCodeLabelAr: 'أو أدخل الرمز القصير',
     shortCodePlaceholder: 'K7QP-3M2A-XR9T',
+    logoutAr: 'تسجيل الخروج',
+    logoutHelpAr: 'إجاباتك المحفوظة تبقى في هذا المتصفح — ستحتاج الرابط أو الرمز مرة أخرى للعودة إليها.',
   },
 
   draft: {

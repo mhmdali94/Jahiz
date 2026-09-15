@@ -72,6 +72,18 @@ export async function authenticate() {
   return result;
 }
 
+/**
+ * Ends the current session so the next load shows the welcome screen again.
+ * Clearing sessionStorage alone isn't enough for a client who arrived via a
+ * long link (`#t=...` in the URL) — authenticate() checks the URL hash
+ * *before* the saved session, so that link would just log them straight
+ * back in on reload. Clearing the hash too closes that gap.
+ */
+export function logout() {
+  clearSessionAuth();
+  history.replaceState(null, '', location.pathname + location.search);
+}
+
 /** Resolves a short code the client typed, then runs it through the normal token path. */
 export async function authenticateWithShortCode(code) {
   const hash = await sha256Hex(normalizeShortCode(code));

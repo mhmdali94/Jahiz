@@ -67,9 +67,41 @@ function renderWelcomeScreen(root, reason) {
 
   const servicesEl = el('div', { class: 'welcome-services' });
 
+  const submit = async () => {
+    const input = document.getElementById('shortcode-input');
+    const result = await authenticateWithShortCode(input.value);
+    if (result.valid) {
+      applyTokenPrefill(result.data, selectedProjectType);
+      clear(root);
+      mountApp(root);
+    } else {
+      errorEl.hidden = false;
+    }
+  };
+
+  const loginBoxEl = el('div', { class: 'invalid-link welcome-login', hidden: true }, [
+    el('label', { for: 'shortcode-input' }, strings.welcome.loginPromptAr),
+    el('div', { class: 'invalid-link__shortcode' }, [
+      el('input', {
+        id: 'shortcode-input',
+        class: 'input',
+        placeholder: strings.accessControl.shortCodePlaceholder,
+        dir: 'ltr',
+        onkeydown: (e) => { if (e.key === 'Enter') submit(); },
+      }),
+      el('button', { type: 'button', class: 'btn btn--primary', onclick: submit }, strings.welcome.submitAr),
+    ]),
+    errorEl,
+  ]);
+  errorEl.textContent = strings.welcome.codeErrorAr;
+
   function renderServicesPicker() {
     clear(servicesEl);
     servicesEl.appendChild(el('p', { class: 'welcome-services__intro' }, strings.welcome.servicesIntroAr));
+    // The code/link entry only makes sense once the client has said which
+    // service they're here for — showing it from the very first paint
+    // invited people to type their code before ever touching the picker.
+    loginBoxEl.hidden = !selectedProjectType;
 
     if (selectedProjectType) {
       const type = PROJECT_TYPE_LIST.find((t) => t.value === selectedProjectType);
@@ -123,18 +155,6 @@ function renderWelcomeScreen(root, reason) {
   }
   renderServicesPicker();
 
-  const submit = async () => {
-    const input = document.getElementById('shortcode-input');
-    const result = await authenticateWithShortCode(input.value);
-    if (result.valid) {
-      applyTokenPrefill(result.data, selectedProjectType);
-      clear(root);
-      mountApp(root);
-    } else {
-      errorEl.hidden = false;
-    }
-  };
-
   const box = el('div', { class: 'welcome-screen' }, [
     el('div', { class: 'welcome-screen__brand' }, [
       el('h1', {}, [strings.app.brandAr, ' ', el('span', { class: 'latin-term', dir: 'ltr' }, strings.app.brandLatin)]),
@@ -147,22 +167,8 @@ function renderWelcomeScreen(root, reason) {
       ? el('p', { class: 'banner--warning' }, strings.accessControl.invalidLinkAr)
       : null,
 
-    el('div', { class: 'invalid-link welcome-login' }, [
-      el('label', { for: 'shortcode-input' }, strings.welcome.loginPromptAr),
-      el('div', { class: 'invalid-link__shortcode' }, [
-        el('input', {
-          id: 'shortcode-input',
-          class: 'input',
-          placeholder: strings.accessControl.shortCodePlaceholder,
-          dir: 'ltr',
-          onkeydown: (e) => { if (e.key === 'Enter') submit(); },
-        }),
-        el('button', { type: 'button', class: 'btn btn--primary', onclick: submit }, strings.welcome.submitAr),
-      ]),
-      errorEl,
-    ]),
+    loginBoxEl,
   ]);
-  errorEl.textContent = strings.welcome.codeErrorAr;
   root.appendChild(box);
 }
 

@@ -14,6 +14,7 @@ import { renderTableField } from './table.js';
 import { renderReviewScreen } from './review.js';
 import { scheduleSave, saveNow, loadDraft, clearDraft, getLastSaved, detectPrivateMode, requestPersistentStorage } from './autosave.js';
 import { renderDraftPanel, renderMissingImagesBannerIfAny, SKIP_DRAFT_PROMPT_KEY } from './draftPanel.js';
+import { logout } from '../auth.js';
 import { strings } from '../strings.js';
 
 const FIELD_TYPES_TABLE = 'table';
@@ -250,7 +251,20 @@ function renderSidebar(visibleSteps, answers) {
   ]);
   sidebarEl.appendChild(stickyNav);
   sidebarEl.appendChild(renderDraftPanel());
+  sidebarEl.appendChild(renderLogoutPanel());
   sidebarEl.querySelector('.sidebar-toggle').addEventListener('click', () => sidebarEl.classList.toggle('is-open'));
+}
+
+// Ends the session (clears the saved token + the URL's #t=, see auth.js) and
+// reloads to the welcome screen. Doesn't touch the saved draft — that's a
+// separate, session-independent thing (see autosave.js) — logging back in
+// with the same link/code picks the draft right back up, same as reopening
+// the tab normally would.
+function renderLogoutPanel() {
+  return el('div', { class: 'logout-panel' }, [
+    el('button', { type: 'button', class: 'btn btn--secondary btn--small', onclick: () => { logout(); location.reload(); } }, strings.accessControl.logoutAr),
+    el('p', { class: 'logout-panel__help' }, strings.accessControl.logoutHelpAr),
+  ]);
 }
 
 function stepStatus(step, answers) {
