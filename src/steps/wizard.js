@@ -242,16 +242,19 @@ function renderSidebar(visibleSteps, answers) {
     chaptersEl.appendChild(el('section', { class: 'sidebar-chapter' }, [headerBtn, list]));
   }
 
-  // Toggle + chapters are wrapped separately from the draft panel so mobile
-  // can stick just the nav (small, always needs to be reachable) without
-  // pinning the draft-export panel to the screen too (see .sidebar-sticky).
+  // Everything below the toggle button — chapters, draft panel, logout —
+  // lives inside the one fixed, collapsible dropdown on mobile (see
+  // .sidebar-sticky and the mobile media query in main.css). They used to
+  // sit outside it as plain in-flow siblings, which put "مشاركة المسودة"
+  // and the logout button permanently at the very top of the page, above
+  // the actual step content, on every phone screen.
   const stickyNav = el('div', { class: 'sidebar-sticky' }, [
     el('button', { class: 'sidebar-toggle', 'aria-label': 'القائمة' }, '☰'),
     chaptersEl,
+    renderDraftPanel(),
+    renderLogoutPanel(),
   ]);
   sidebarEl.appendChild(stickyNav);
-  sidebarEl.appendChild(renderDraftPanel());
-  sidebarEl.appendChild(renderLogoutPanel());
   sidebarEl.querySelector('.sidebar-toggle').addEventListener('click', () => sidebarEl.classList.toggle('is-open'));
 }
 
