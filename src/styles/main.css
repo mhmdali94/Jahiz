@@ -106,7 +106,30 @@ ul { margin: 0; padding-inline-start: 1.25rem; }
 
 /* ---------- welcome / login screen ---------- */
 .welcome-screen { max-width: 40rem; margin: 0 auto; padding: var(--space-8) var(--space-4) 4rem; }
-.welcome-screen__brand { text-align: center; margin-bottom: var(--space-8); }
+.welcome-screen__brand {
+  position: relative;
+  text-align: center;
+  margin-bottom: var(--space-8);
+  padding: var(--space-6) var(--space-4);
+  overflow: hidden;
+}
+/* Soft abstract backdrop behind the brand/tagline only — subtle enough not
+   to compete with the service cards or code box below, which sit on their
+   own solid surfaces regardless of how far this bleeds. No extra asset:
+   just layered, low-opacity radial gradients in the existing brand navy. */
+.welcome-screen__brand::before {
+  content: '';
+  position: absolute;
+  inset: -3rem -2rem;
+  z-index: 0;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(31, 78, 120, 0.35), transparent 55%),
+    radial-gradient(circle at 85% 20%, rgba(31, 78, 120, 0.25), transparent 50%),
+    radial-gradient(circle at 55% 92%, rgba(22, 58, 89, 0.2), transparent 55%);
+  filter: blur(28px);
+  pointer-events: none;
+}
+.welcome-screen__brand > * { position: relative; z-index: 1; }
 .welcome-screen__brand h1 { font-size: 2rem; margin-bottom: var(--space-2); }
 .welcome-screen__tagline { color: var(--ink-muted); }
 
