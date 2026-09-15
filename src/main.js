@@ -156,7 +156,9 @@ function renderWelcomeScreen(root, reason) {
 
   const box = el('div', { class: 'welcome-screen' }, [
     el('div', { class: 'welcome-screen__brand' }, [
-      el('h1', {}, [strings.app.brandAr, ' ', el('span', { class: 'latin-term', dir: 'ltr' }, strings.app.brandLatin)]),
+      el('h1', {}, [
+        el('img', { class: 'welcome-screen__logo', src: '/logo.png', alt: `${strings.app.brandAr} ${strings.app.brandLatin}` }),
+      ]),
       el('p', { class: 'welcome-screen__tagline' }, strings.welcome.taglineAr),
     ]),
 

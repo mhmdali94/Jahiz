@@ -130,7 +130,8 @@ ul { margin: 0; padding-inline-start: 1.25rem; }
   pointer-events: none;
 }
 .welcome-screen__brand > * { position: relative; z-index: 1; }
-.welcome-screen__brand h1 { font-size: 2rem; margin-bottom: var(--space-2); }
+.welcome-screen__brand h1 { margin-bottom: var(--space-2); line-height: 0; }
+.welcome-screen__logo { display: inline-block; width: 100%; max-width: 15rem; height: auto; }
 .welcome-screen__tagline { color: var(--ink-muted); }
 
 .welcome-services { margin-bottom: var(--space-8); }
