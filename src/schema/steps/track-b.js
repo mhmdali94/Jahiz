@@ -62,6 +62,7 @@ export const stepB0Seo = {
     field('search_console_account', 'هل يوجد حساب Google Search Console؟ وبأي بريد؟', 'Is there a Google Search Console account? Under which email?', FIELD_TYPES.TEXT, {
       latinTerm: 'Search Console',
       visibleWhen: (a) => a.wants_google_indexing === 'yes',
+      hoverHelpAr: 'أداة مجانية من جوجل تُظهر كيف يظهر موقعكم في نتائج البحث والمشاكل التقنية التي قد تؤثر على ظهوره.',
     }),
   ],
 };
@@ -157,15 +158,20 @@ export const stepB1Forms = {
     field('spam_protection', 'هل تريد حماية من الرسائل المزعجة؟', 'Spam protection (reCAPTCHA / hCaptcha)?', FIELD_TYPES.RADIO, {
       options: YES_NO,
       latinTerm: 'reCAPTCHA / hCaptcha',
+      hoverHelpAr: 'أداة تمنع الروبوتات من إرسال رسائل مزعجة عبر نماذج الموقع، دون التأثير على تجربة الزوار الحقيقيين.',
     }),
     field('pdpl_consent_checkbox', 'موافقة على سياسة الخصوصية قبل الإرسال؟', 'A consent checkbox before submitting, for PDPL', FIELD_TYPES.RADIO, {
       options: YES_NO,
       latinTerm: 'PDPL',
+      hoverHelpAr: 'مربّع اختيار يوافق فيه الزائر على سياسة الخصوصية قبل إرسال بياناته — مطلوب نظاماً بموجب نظام حماية البيانات الشخصية السعودي.',
     }),
     // No "store in a dashboard" option — static pages only, no backend to
     // hold a submissions dashboard. Email/WhatsApp are the only delivery
     // paths, already covered above.
-    field('crm_integration', 'هل يوجد ربط مطلوب مع نظام CRM؟', 'Any CRM integration?', FIELD_TYPES.TEXT, { latinTerm: 'CRM' }),
+    field('crm_integration', 'هل يوجد ربط مطلوب مع نظام CRM؟', 'Any CRM integration?', FIELD_TYPES.TEXT, {
+      latinTerm: 'CRM',
+      hoverHelpAr: 'نظام لإدارة بيانات العملاء ومتابعة التواصل معهم، مثل Zoho أو HubSpot. إن لم يوجد نظام كهذا لديكم، يمكن ترك هذا فارغاً.',
+    }),
     field('wants_careers_page', 'هل تريد صفحة وظائف شاغرة تُحدَّث باستمرار؟', 'Do they want a careers page they can update themselves?', FIELD_TYPES.RADIO, { options: YES_NO }),
   ],
 };

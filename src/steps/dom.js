@@ -33,3 +33,20 @@ export function labelWithLatinTerm(labelAr, latinTerm) {
   }
   return wrap;
 }
+
+/**
+ * A "؟" beside a label that reveals a detailed explanation on hover — for
+ * questions with no room for an always-visible helpAr note but that still
+ * trip people up (jargon, an unfamiliar process, a Saudi-specific term).
+ * Deliberately hover-only, no tap/click fallback: an explicit choice this
+ * won't reach phone users, who make up most real usage — see the field's
+ * own `helpAr` (always-visible, works everywhere) for anything that can't
+ * be skipped. `tabindex="0"` + `:focus` at least lets keyboard users reach
+ * it despite the interaction being hover-shaped.
+ */
+export function hoverHint(text) {
+  return el('span', { class: 'field-hint', tabindex: '0' }, [
+    '؟',
+    el('span', { class: 'field-hint__tooltip', role: 'tooltip' }, text),
+  ]);
+}

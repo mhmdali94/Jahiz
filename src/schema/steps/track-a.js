@@ -83,6 +83,7 @@ export const stepA2CurrentSite = {
     field('current_platform', 'منصة الموقع الحالي', 'Current platform', FIELD_TYPES.SELECT, {
       options: CURRENT_PLATFORMS,
       latinTerm: 'CMS',
+      hoverHelpAr: 'المنصة أو النظام الذي بُني عليه الموقع الحالي، مثل ووردبريس أو شوبيفاي. إن لم تكن متأكداً، اسأل من صمم الموقع أو اختر «لا أعرف».',
     }),
     field('current_builder', 'من قام ببناء الموقع الحالي؟', 'Who built the current site?', FIELD_TYPES.TEXT),
     field('previous_dev_contact', 'هل ما زال التواصل متاحاً مع المطوّر السابق؟', 'Still in contact with the previous developer?', FIELD_TYPES.RADIO, {
@@ -91,6 +92,7 @@ export const stepA2CurrentSite = {
     field('has_staging', 'هل يوجد موقع تجريبي (Staging)؟', 'Is there a staging site?', FIELD_TYPES.RADIO, {
       options: YES_NO,
       latinTerm: 'Staging',
+      hoverHelpAr: 'نسخة تجريبية من الموقع تُستخدم للتجربة قبل نشر أي تعديل على الموقع الفعلي الذي يراه الزوار.',
     }),
     field('content_to_preserve', 'محتوى يجب الحفاظ عليه بالتأكيد', 'Content that must be preserved', FIELD_TYPES.TEXTAREA),
   ],
@@ -146,6 +148,7 @@ export const stepA2bDesignDirection = {
       options: YES_NO,
       latinTerm: 'SEO',
       decisionLevel: 'decision_maker',
+      hoverHelpAr: 'روابط الصفحات الحالية (مثل example.com/about) قد تكون مفهرسة في جوجل. تغييرها بدون إعادة توجيه يفقد الموقع ترتيبه في نتائج البحث.',
     }),
 
     table(
@@ -201,7 +204,11 @@ export const stepA2cBrandIdentity = {
     uploadSlot('logo_white_file', 'ارفع النسخة البيضاء من الشعار', 'Upload the white version', 'company/logo/', {
       visibleWhen: (a) => a.logo_white_version === 'yes',
     }),
-    field('favicon_available', 'أيقونة الموقع (Favicon) — متوفرة؟', 'Favicon available?', FIELD_TYPES.RADIO, { options: YES_NO, latinTerm: 'Favicon' }),
+    field('favicon_available', 'أيقونة الموقع (Favicon) — متوفرة؟', 'Favicon available?', FIELD_TYPES.RADIO, {
+      options: YES_NO,
+      latinTerm: 'Favicon',
+      hoverHelpAr: 'الأيقونة الصغيرة التي تظهر بجانب اسم الموقع في تبويب المتصفح.',
+    }),
     uploadSlot('favicon_file', 'ارفع أيقونة الموقع', 'Upload the favicon', 'company/', {
       visibleWhen: (a) => a.favicon_available === 'yes',
     }),
@@ -210,10 +217,15 @@ export const stepA2cBrandIdentity = {
     field('keep_current_colors', 'هل نحافظ على ألوان الموقع الحالي أم نغيّرها؟', 'Keep the current colors, or change them?', FIELD_TYPES.RADIO, {
       options: [{ value: 'keep', ar: 'نحافظ عليها' }, { value: 'change', ar: 'نغيّرها' }],
     }),
-    field('brand_colors_hex', 'أكواد الألوان المعتمدة (HEX) — الأساسي والثانوي', 'Approved brand colors (HEX) — primary & secondary', FIELD_TYPES.TEXT),
+    field('brand_colors_hex', 'أكواد الألوان المعتمدة (HEX) — الأساسي والثانوي', 'Approved brand colors (HEX) — primary & secondary', FIELD_TYPES.TEXT, {
+      hoverHelpAr: 'كود اللون الدقيق المستخدم في التصميم، مثل #1A73E8. إن لم يكن متوفراً لديك، يمكن لمصمم الهوية تزويدك به، أو نحدده نحن من الشعار.',
+    }),
     field('arabic_font', 'الخط العربي المستخدم', 'Arabic font in use', FIELD_TYPES.TEXT),
     field('latin_font', 'الخط الإنجليزي المستخدم', 'Latin font in use', FIELD_TYPES.TEXT),
-    field('fonts_licensed', 'هل الخطوط مرخّصة للاستخدام على الويب؟', 'Are the fonts licensed for web use?', FIELD_TYPES.RADIO, { options: YES_NO }),
+    field('fonts_licensed', 'هل الخطوط مرخّصة للاستخدام على الويب؟', 'Are the fonts licensed for web use?', FIELD_TYPES.RADIO, {
+      options: YES_NO,
+      hoverHelpAr: 'استخدام خط غير مرخّص للويب على موقع عام قد يعرّضكم لمساءلة قانونية من صاحب حقوق الخط.',
+    }),
     uploadSlot('licensed_fonts_file', 'ارفع ملفات الخطوط', 'Upload the font files', 'company/fonts/', {
       visibleWhen: (a) => a.fonts_licensed === 'yes',
     }),
@@ -254,14 +266,20 @@ export const stepA3Domain = {
     field('auto_renew_enabled', 'هل التجديد التلقائي مفعّل؟', 'Is auto-renew enabled?', FIELD_TYPES.RADIO, { options: YES_NO }),
     field('dns_managed_where', 'أين تُدار سجلات DNS حالياً؟', 'Where is DNS currently managed?', FIELD_TYPES.TEXT, {
       latinTerm: 'DNS',
+      hoverHelpAr: 'الجهة التي تتحكم في توجيه النطاق (مثل ربطه بالاستضافة أو البريد) — غالباً نفس شركة تسجيل النطاق، إلا إذا نُقلت هذه الإدارة لجهة أخرى مثل Cloudflare.',
     }),
-    field('domain_locked', 'هل النطاق مقفل (Registrar Lock)؟', 'Is the domain locked?', FIELD_TYPES.RADIO, { options: YES_NO }),
+    field('domain_locked', 'هل النطاق مقفل (Registrar Lock)؟', 'Is the domain locked?', FIELD_TYPES.RADIO, {
+      options: YES_NO,
+      hoverHelpAr: 'إعداد أمني يمنع نقل النطاق لجهة تسجيل أخرى دون إلغائه أولاً — يُفعّل عادة لحماية النطاق من السرقة.',
+    }),
     field('epp_code_available', 'هل يتوفر كود النقل EPP / Auth Code؟', 'Is the EPP / Auth code available?', FIELD_TYPES.RADIO, {
       options: YES_NO,
       latinTerm: 'EPP / Auth Code',
       helpAr: 'يُطلب من شركة تسجيل النطاق الحالية، وهو مطلوب لنقل النطاق بين الشركات.',
     }),
-    field('subdomains_in_use', 'النطاقات الفرعية المستخدمة حالياً', 'Subdomains currently in use', FIELD_TYPES.TEXTAREA),
+    field('subdomains_in_use', 'النطاقات الفرعية المستخدمة حالياً', 'Subdomains currently in use', FIELD_TYPES.TEXTAREA, {
+      hoverHelpAr: 'أي عنوان يسبق النطاق الأساسي، مثل mail.example.com أو shop.example.com.',
+    }),
     field('other_domains_owned', 'نطاقات أخرى مملوكة للشركة', 'Other domains owned by the company', FIELD_TYPES.TEXTAREA),
     field('domain_2fa_enabled', 'هل يوجد تفعيل للتحقق بخطوتين على الحساب؟', 'Is 2FA enabled on the account?', FIELD_TYPES.RADIO, {
       options: YES_NO,
@@ -285,6 +303,7 @@ export const stepA4Hosting = {
     field('hosting_panel_type', 'نوع لوحة التحكم', 'Control panel type', FIELD_TYPES.SELECT, {
       options: HOSTING_PANELS,
       latinTerm: 'cPanel / Plesk / CyberPanel',
+      hoverHelpAr: 'الواجهة التي تُدار بها الاستضافة. إن لم تكن متأكداً، تحقق من بريد الترحيب من شركة الاستضافة أو اسأل مسؤول الموقع التقني.',
     }),
     field('hosting_panel_url', 'رابط لوحة التحكم', 'Control panel URL', FIELD_TYPES.URL, {
       helpAr: 'عادة يكون على شكل yoursite.com/cpanel أو رابط أرسلته لك شركة الاستضافة عند الاشتراك. ابحث في بريدك عن رسالة الترحيب منهم.',
@@ -296,18 +315,24 @@ export const stepA4Hosting = {
         { value: 'vps', ar: 'VPS' },
         { value: 'dedicated', ar: 'خادم مخصص' },
       ],
+      hoverHelpAr: 'مشتركة تعني موارد مقسّمة مع مواقع أخرى على نفس الخادم؛ VPS وخادم مخصص يوفران موارد مستقلة بتكلفة أعلى.',
     }),
     field('hosting_expiry', 'تاريخ انتهاء الاستضافة', 'Hosting expiry date', FIELD_TYPES.DATE),
     field('ssh_available', 'هل يتوفر وصول SSH؟', 'Is SSH access available?', FIELD_TYPES.RADIO, {
       options: YES_NO,
       latinTerm: 'SSH',
+      hoverHelpAr: 'وصول عن بُعد لسطر أوامر الخادم، يستخدمه المطوّرون للإعدادات المتقدمة. إن لم تكن متأكداً، اختر «لا أعرف».',
     }),
     field('ftp_available', 'هل يتوفر وصول FTP / SFTP؟', 'Is FTP / SFTP access available?', FIELD_TYPES.RADIO, {
       options: YES_NO,
       latinTerm: 'FTP / SFTP',
+      hoverHelpAr: 'وسيلة لرفع وتنزيل ملفات الموقع مباشرة من وإلى الخادم.',
     }),
     field('database_access', 'بيانات قاعدة البيانات (الاسم والمستخدم)', 'Database name & user', FIELD_TYPES.TEXT),
-    field('php_version', 'إصدار PHP الحالي', 'Current PHP version', FIELD_TYPES.TEXT, { latinTerm: 'PHP' }),
+    field('php_version', 'إصدار PHP الحالي', 'Current PHP version', FIELD_TYPES.TEXT, {
+      latinTerm: 'PHP',
+      hoverHelpAr: 'لغة البرمجة التي تعمل بها معظم مواقع ووردبريس وأنظمة إدارة المحتوى. عادة تجدها في لوحة تحكم الاستضافة.',
+    }),
     field('site_size_gb', 'حجم الموقع التقريبي (جيجابايت)', 'Approximate site size (GB)', FIELD_TYPES.NUMBER),
     field('recent_backup', 'هل توجد نسخة احتياطية حديثة؟ وأين؟', 'Is there a recent backup? Where?', FIELD_TYPES.TEXTAREA, {
       flagsReview: 'no_backup',
@@ -327,10 +352,17 @@ export const stepA10SslSecurity = {
   appliesTo: ['new', 'migration', 'redesign'],
   requiredFor: ['new', 'migration', 'redesign'],
   fields: [
-    field('ssl_provider', 'شهادة SSL: المزوّد ونوعها', 'SSL certificate: provider and type', FIELD_TYPES.TEXT, { latinTerm: 'SSL' }),
-    field('wildcard_needed', 'هل تحتاج شهادة Wildcard؟', 'Is a wildcard certificate needed?', FIELD_TYPES.RADIO, { options: YES_NO }),
+    field('ssl_provider', 'شهادة SSL: المزوّد ونوعها', 'SSL certificate: provider and type', FIELD_TYPES.TEXT, {
+      latinTerm: 'SSL',
+      hoverHelpAr: 'الشهادة التي تجعل الموقع يعمل بـ https وتُظهر رمز القفل في المتصفح.',
+    }),
+    field('wildcard_needed', 'هل تحتاج شهادة Wildcard؟', 'Is a wildcard certificate needed?', FIELD_TYPES.RADIO, {
+      options: YES_NO,
+      hoverHelpAr: 'شهادة SSL تغطي جميع النطاقات الفرعية دفعة واحدة (مثل ‎*.example.com‎) بدلاً من إصدار شهادة منفصلة لكل واحد.',
+    }),
     field('firewall_cdn', 'هل يوجد جدار حماية أو CDN (Cloudflare / Sucuri)؟', 'Any firewall or CDN?', FIELD_TYPES.TEXT, {
       latinTerm: 'WAF / CDN',
+      hoverHelpAr: 'خدمة تحمي الموقع من الهجمات وتسرّع تحميله من خلال خوادم موزّعة حول العالم.',
     }),
     field('cloudflare_owner', 'اسم صاحب حساب Cloudflare إن وُجد', 'Cloudflare account owner if any', FIELD_TYPES.TEXT),
     field('hosting_2fa_enabled', 'هل يوجد تفعيل للتحقق بخطوتين على الحساب؟', 'Is 2FA enabled on the account?', FIELD_TYPES.RADIO, {
@@ -361,7 +393,9 @@ export const stepA5MailCurrent = {
       options: MAIL_PROVIDERS,
       required: true,
     }),
-    field('mail_admin_console_url', 'رابط لوحة تحكم البريد', 'Mail admin console URL', FIELD_TYPES.URL),
+    field('mail_admin_console_url', 'رابط لوحة تحكم البريد', 'Mail admin console URL', FIELD_TYPES.URL, {
+      hoverHelpAr: 'رابط لوحة تحكم البريد للمشرف، وليس صندوق بريد فردي — عادة يصل عبر بريد الترحيب من مزوّد البريد.',
+    }),
     field('mail_admin_username', 'اسم مستخدم المشرف', 'Admin username'),
     field('mailbox_count_reported', 'عدد صناديق البريد الحالية', 'Number of existing mailboxes', FIELD_TYPES.NUMBER, {
       flagsReview: 'mailbox_count_mismatch',
@@ -369,6 +403,7 @@ export const stepA5MailCurrent = {
     field('mx_current_target', 'إلى أين تشير سجلات MX حالياً؟', 'Where do the MX records currently point?', FIELD_TYPES.TEXT, {
       latinTerm: 'MX',
       flagsReview: 'mx_points_at_old_provider',
+      hoverHelpAr: 'الإعداد الذي يحدد أي خادم يستقبل رسائل البريد الواردة للنطاق حالياً.',
     }),
     field('mail_admin_2fa', 'هل التحقق بخطوتين مفعّل على حساب المشرف؟', 'Is 2FA enabled on the admin account?', FIELD_TYPES.RADIO, {
       options: YES_NO,
@@ -415,9 +450,11 @@ export const stepA5bMailMigrationAccess = {
     field('imap_host_port', 'خادم IMAP الحالي: العنوان والمنفذ', 'Current IMAP server: host & port', FIELD_TYPES.TEXT, {
       latinTerm: 'IMAP',
       required: true,
+      hoverHelpAr: 'بيانات الاتصال بخادم البريد لجلب الرسائل — تجدها عادة في إعدادات بريدك الحالي أو من مزوّد الخدمة.',
     }),
     field('smtp_host_port', 'خادم SMTP الحالي: العنوان والمنفذ', 'Current SMTP server: host & port', FIELD_TYPES.TEXT, {
       latinTerm: 'SMTP',
+      hoverHelpAr: 'بيانات الاتصال بخادم البريد المستخدم لإرسال الرسائل.',
     }),
     field('imap_enabled_all', 'هل بروتوكول IMAP مفعّل لجميع الصناديق؟', 'Is IMAP enabled for all mailboxes?', FIELD_TYPES.RADIO, {
       options: YES_NO,
@@ -470,7 +507,9 @@ export const stepA6Mailboxes = {
         column('action', 'الإجراء المطلوب', 'Action', FIELD_TYPES.SELECT, { options: MAILBOX_ACTIONS, required: true }),
         column('current_size', 'الحجم الحالي', 'Current mailbox size'),
         column('quota_needed', 'الحجم المطلوب', 'Quota needed'),
-        column('aliases', 'أسماء بديلة (Alias)', 'Aliases'),
+        column('aliases', 'أسماء بديلة (Alias)', 'Aliases', FIELD_TYPES.TEXT, {
+          hoverHelpAr: 'أسماء بريد بديلة تصل جميعها لنفس الصندوق، مثل sales@ الذي يصل لنفس بريد المدير.',
+        }),
         column('forward_to', 'تحويل إلى', 'Forwarding to'),
         column('notes', 'ملاحظات', 'Notes', FIELD_TYPES.TEXTAREA),
       ],
@@ -507,6 +546,7 @@ export const stepA7MigrationScope = {
     field('needs_301_redirects', 'هل هناك روابط قديمة يجب إعادة توجيهها (301)؟', 'Old URLs needing 301 redirects?', FIELD_TYPES.RADIO, {
       options: YES_NO,
       latinTerm: '301',
+      hoverHelpAr: 'إعادة توجيه تلقائية من رابط قديم إلى رابط جديد، تحافظ على ترتيب الصفحة في جوجل وتمنع ظهور «صفحة غير موجودة» لمن يفتح الرابط القديم.',
     }),
   ],
 };
@@ -546,7 +586,10 @@ export const stepA7cMailMigrationScope = {
     field('migrate_rules_filters', 'ترحيل قواعد وفلاتر البريد؟', 'Migrate rules & filters?', FIELD_TYPES.RADIO, { options: YES_NO }),
     field('migrate_signatures', 'ترحيل التوقيعات؟', 'Migrate signatures?', FIELD_TYPES.RADIO, { options: YES_NO }),
     field('migrate_groups_lists', 'ترحيل القوائم البريدية ومجموعات التوزيع؟', 'Migrate groups & distribution lists?', FIELD_TYPES.RADIO, { options: YES_NO }),
-    field('migrate_shared_delegated', 'ترحيل الصناديق المشتركة والمفوَّضة؟', 'Migrate shared & delegated mailboxes?', FIELD_TYPES.RADIO, { options: YES_NO }),
+    field('migrate_shared_delegated', 'ترحيل الصناديق المشتركة والمفوَّضة؟', 'Migrate shared & delegated mailboxes?', FIELD_TYPES.RADIO, {
+      options: YES_NO,
+      hoverHelpAr: 'صناديق يديرها أكثر من شخص، مثل بريد عام تصل إليه أكثر من موظف، أو صندوق فوّض شخص آخر بالوصول إليه.',
+    }),
     field('staff_keep_using_email', 'هل سيستمر الموظفون في استخدام البريد أثناء الترحيل؟', 'Will staff keep using email during the migration?', FIELD_TYPES.RADIO, { options: YES_NO }),
     field('who_reconfigures_devices', 'من سيعيد ضبط أجهزة الجوال وبرنامج Outlook للموظفين؟', 'Who will reconfigure staff phones and Outlook?', FIELD_TYPES.TEXT),
     field('staff_need_training', 'هل يحتاج الموظفون إلى شرح أو تدريب بعد الترحيل؟', 'Do staff need training after migration?', FIELD_TYPES.RADIO, { options: YES_NO }),

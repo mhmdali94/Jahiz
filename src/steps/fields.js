@@ -3,7 +3,7 @@
 // dropdown, the "؟" inline help disclosure, inline Latin technical terms,
 // and visibleWhen show/hide — all generically, from data on the field.
 
-import { el, labelWithLatinTerm } from './dom.js';
+import { el, labelWithLatinTerm, hoverHint } from './dom.js';
 import { FIELD_TYPES, isFieldVisible } from '../schema/index.js';
 import { getValue, setValue, isUnknown, setUnknown, getAnswers } from './state.js';
 import { strings } from '../strings.js';
@@ -42,6 +42,9 @@ export function renderField(field) {
     field.required ? el('span', { class: 'field__required', 'aria-hidden': 'true' }, ' *') : null,
   ]);
   labelRow.appendChild(label);
+  // Only for fields with no always-visible helpAr — see hoverHint in dom.js
+  // for why this is hover-only and not a fallback for the real thing.
+  if (field.hoverHelpAr && !field.helpAr) labelRow.appendChild(hoverHint(field.hoverHelpAr));
   wrapper.appendChild(labelRow);
 
   const helpId = `help-${field.id}`;

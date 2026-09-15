@@ -4,7 +4,7 @@
 // paste-sitemap, live counters, static pre-seeded rows) are opt-in via flags
 // already present on the field in the schema, not hardcoded per table id.
 
-import { el, labelWithLatinTerm } from './dom.js';
+import { el, labelWithLatinTerm, hoverHint } from './dom.js';
 import { createControl } from './fields.js';
 import { getRows, setRows, newRowId, getAnswers } from './state.js';
 import { isFieldVisible } from '../schema/index.js';
@@ -199,7 +199,10 @@ function renderRowCard(field, row, index, rerender) {
 
     const fieldBox = el('div', { class: `row-card__field ${WIDE_COLUMN_TYPES.has(col.type) ? 'row-card__field--wide' : ''}` });
     const domId = `c-${field.id}-${col.id}-${index}`;
-    fieldBox.appendChild(el('label', { class: 'row-card__label', for: domId }, labelWithLatinTerm(col.labelAr, col.latinTerm)));
+    fieldBox.appendChild(el('label', { class: 'row-card__label', for: domId }, [
+      labelWithLatinTerm(col.labelAr, col.latinTerm),
+      col.hoverHelpAr && !col.helpAr ? hoverHint(col.hoverHelpAr) : null,
+    ]));
 
     const opts = {
       domId,

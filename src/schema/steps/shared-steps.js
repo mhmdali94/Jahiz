@@ -76,7 +76,10 @@ export const stepSaudiRequirements = {
     note('compliance_group', 'الامتثال النظامي', 'Regulatory compliance'),
     field('cr_in_footer', 'هل يظهر رقم السجل التجاري في تذييل الموقع؟ (إلزامي نظاماً)', 'Is the CR number shown in the site footer? (legally required)', FIELD_TYPES.RADIO, { options: YES_NO }),
     field('vat_displayed', 'هل يظهر الرقم الضريبي في الموقع والفواتير؟', 'Is the VAT number shown on the site and invoices?', FIELD_TYPES.RADIO, { options: YES_NO }),
-    field('maroof_verified', 'هل المتجر موثّق في «معروف»؟ ورقم التوثيق', 'Is the store verified on Maroof? Verification number', FIELD_TYPES.TEXT, { latinTerm: 'Maroof' }),
+    field('maroof_verified', 'هل المتجر موثّق في «معروف»؟ ورقم التوثيق', 'Is the store verified on Maroof? Verification number', FIELD_TYPES.TEXT, {
+      latinTerm: 'Maroof',
+      hoverHelpAr: 'علامة توثيق حكومية للمتاجر الإلكترونية في السعودية تصدرها وزارة التجارة، تُطمئن الزوار أن المتجر موثوق ومسجّل نظامياً.',
+    }),
     field('pdpl_compliant', 'هل سياسة الخصوصية متوافقة مع نظام حماية البيانات الشخصية (PDPL)؟', 'Is the privacy policy compliant with Saudi PDPL?', FIELD_TYPES.RADIO, {
       options: YES_NO,
       latinTerm: 'PDPL',
@@ -89,6 +92,7 @@ export const stepSaudiRequirements = {
     field('zatca_einvoicing', 'هل يوجد ربط مع الفوترة الإلكترونية (فاتورة - ZATCA)؟', 'Any integration with ZATCA e-invoicing (Fatoora)?', FIELD_TYPES.RADIO, {
       options: YES_NO,
       latinTerm: 'ZATCA',
+      hoverHelpAr: 'مطلوب فقط إذا كان الموقع يُصدر فواتير ضريبية عبر الإنترنت (مثل متجر إلكتروني). لا ينطبق على موقع تعريفي بدون بيع مباشر.',
     }),
 
     note('saudi_domain_group', 'النطاق السعودي', 'Saudi domain'),
@@ -96,6 +100,7 @@ export const stepSaudiRequirements = {
     field('saudinic_reference', 'إن كان مسجلاً عبر SaudiNIC: البريد والرقم المرجعي', 'If registered via SaudiNIC: email & reference', FIELD_TYPES.TEXT, {
       latinTerm: 'SaudiNIC',
       visibleWhen: (a) => a.has_sa_domain === 'yes',
+      hoverHelpAr: 'الجهة الحكومية الوحيدة المخوّلة بتسجيل نطاقات .sa و .com.sa في السعودية.',
     }),
     field('cr_available_for_sa_renewal', 'هل السجل التجاري متاح لتجديد نطاق .sa؟', 'Is the CR available for .sa renewal?', FIELD_TYPES.RADIO, {
       options: YES_NO,
