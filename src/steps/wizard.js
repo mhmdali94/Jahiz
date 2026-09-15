@@ -242,14 +242,28 @@ function renderSidebar(visibleSteps, answers) {
     chaptersEl.appendChild(el('section', { class: 'sidebar-chapter' }, [headerBtn, list]));
   }
 
-  // Everything below the toggle button — chapters, draft panel, logout —
-  // lives inside the one fixed, collapsible dropdown on mobile (see
-  // .sidebar-sticky and the mobile media query in main.css). They used to
-  // sit outside it as plain in-flow siblings, which put "مشاركة المسودة"
-  // and the logout button permanently at the very top of the page, above
-  // the actual step content, on every phone screen.
+  // Everything below the top bar — chapters, draft panel, logout — lives
+  // inside the one fixed, collapsible dropdown on mobile (see .sidebar-sticky
+  // and the mobile media query in main.css). They used to sit outside it as
+  // plain in-flow siblings, which put "مشاركة المسودة" and the logout button
+  // permanently at the very top of the page, above the actual step content,
+  // on every phone screen.
+  // `.sidebar-logout-quick` beside the hamburger is a second, ALWAYS-visible
+  // way to sign out on mobile without opening the drawer first — the full
+  // logout-panel below (with its explanatory text) is still there too, but
+  // on mobile it sits at the very bottom of the chapters list, behind a tap
+  // + a scroll, which is what made "sign out" hard to find in the first
+  // place.
   const stickyNav = el('div', { class: 'sidebar-sticky' }, [
-    el('button', { class: 'sidebar-toggle', 'aria-label': 'القائمة' }, '☰'),
+    el('div', { class: 'sidebar-topbar' }, [
+      el('button', { class: 'sidebar-toggle', 'aria-label': 'القائمة' }, '☰'),
+      el('button', {
+        type: 'button',
+        class: 'sidebar-logout-quick',
+        'aria-label': strings.accessControl.logoutAr,
+        onclick: () => { logout(); location.reload(); },
+      }, strings.accessControl.logoutAr),
+    ]),
     chaptersEl,
     renderDraftPanel(),
     renderLogoutPanel(),

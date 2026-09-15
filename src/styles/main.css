@@ -210,6 +210,8 @@ ul { margin: 0; padding-inline-start: 1.25rem; }
   overscroll-behavior: contain;
 }
 .sidebar-toggle { display: none; }
+.sidebar-topbar { display: contents; }
+.sidebar-logout-quick { display: none; }
 
 .sidebar-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-1); }
 .sidebar-list[hidden] { display: none; } /* the plain class rule above otherwise outranks the browser's own [hidden] default */
@@ -674,15 +676,31 @@ ul { margin: 0; padding-inline-start: 1.25rem; }
     overflow-y: auto;
     overscroll-behavior: contain;
   }
+  .sidebar-topbar { display: flex; gap: var(--space-2); }
   .sidebar-toggle {
     display: block;
-    width: 100%;
+    flex: 1;
+    min-width: 0;
     text-align: start;
     padding: var(--space-3);
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     font-size: 1.15rem;
+    cursor: pointer;
+  }
+  /* Always reachable in one tap, without opening the drawer — see the
+     comment in wizard.js on why this duplicates the full logout-panel
+     buried at the bottom of the chapters list. */
+  .sidebar-logout-quick {
+    display: block;
+    flex-shrink: 0;
+    padding: var(--space-3) var(--space-4);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--danger);
+    font-size: 0.9rem;
     cursor: pointer;
   }
   .sidebar-chapters,
