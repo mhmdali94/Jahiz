@@ -19,7 +19,7 @@ export const strings = {
   },
 
   welcome: {
-    taglineAr: 'نموذج تسليم بيانات المشاريع لعملاء جاهز',
+    taglineAr: 'أجيبوا عن بعض الأسئلة حول مشروعكم لنبدأ العمل مباشرة — يستغرق بضع دقائق فقط',
     servicesIntroAr: 'اختر الخدمة المطلوبة',
     services: [
       { key: 'website', titleAr: 'الموقع الإلكتروني', latin: 'Website', descAr: 'موقع جديد، إعادة تصميم، أو ترحيل من مزوّد آخر' },
