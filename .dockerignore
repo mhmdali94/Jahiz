@@ -1,0 +1,15 @@
+node_modules
+dist
+.git
+scratch
+
+# CLI secrets — must never enter the build context, even though the
+# Dockerfile never copies cli/ into the image either way (defense in depth:
+# `docker build` uploads the whole context to the daemon before the
+# Dockerfile runs a single COPY).
+cli/serials.json
+cli/*.key
+cli/private-key*
+
+.DS_Store
+*.log

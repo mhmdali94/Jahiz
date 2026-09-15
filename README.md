@@ -37,6 +37,47 @@ OpenLiteSpeed has enabled by default per-vhost. If your header somehow
 doesn't apply, check with your host that `.htaccess` overrides are allowed
 for the vhost.
 
+## Deploying with Docker
+
+An alternative to the CyberPanel/FTP flow above — a multi-stage build
+(`Dockerfile`) compiles the site with Node, then serves the plain static
+output with nginx. `.htaccess` is Apache-only and does nothing under
+nginx, so `nginx.conf` sets the same `Content-Security-Policy` header a
+different way; keep the two in sync if that policy ever changes.
+
+```bash
+docker compose up -d --build   # builds the image and starts it on :8080
+# or, without compose:
+docker build -t jahiz .
+docker run -d -p 8080:80 --name jahiz jahiz
+```
+
+Open `http://localhost:8080` (or your server's address on port 8080) —
+you should land on the same "invalid link" screen you'd see on any fresh
+deploy, since no token is in the URL yet. To confirm the security header
+actually made it through:
+
+```bash
+curl -sI http://localhost:8080 | grep -i content-security-policy
+```
+
+**Issuing links still works the same way** (see below) — run
+`node cli/serial.js` locally, not inside the container; it only edits
+`src/shortcodes.json`/`cli/serials.json` on disk. The one thing that
+changes with Docker: a **long link** (`#t=...`) works the instant it's
+issued, no redeploy needed, but a **short code** is baked into the image
+at build time, so after issuing one you need to rebuild and restart the
+container for it to actually work:
+
+```bash
+docker compose up -d --build
+```
+
+One more thing worth repeating from **Issuing a client link** below:
+`cli/private.key` and `cli/serials.json` never get copied into the image
+(see `.dockerignore`), but they still live unencrypted on whatever machine
+runs the CLI — secure and back up that machine the same as before.
+
 ## Issuing a client link
 
 ```bash
