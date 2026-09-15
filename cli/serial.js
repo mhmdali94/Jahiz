@@ -61,15 +61,15 @@ async function ensureKeys() {
   return privateKeyHex;
 }
 
-async function issueOne({ client = '', clientAr = '', type = null, tracks = null }) {
+async function issueOne({ client = '', clientAr = '', type = null }) {
   const privateKeyHex = await ensureKeys();
   const id = randomId();
-  const token = await createToken({ id, client, clientAr, type, tracks }, privateKeyHex);
+  const token = await createToken({ id, client, clientAr, type }, privateKeyHex);
   const shortCode = generateShortCode();
   const shortCodeHash = await sha256Hex(normalizeShortCode(shortCode));
 
   const serials = loadSerials();
-  serials.push({ id, shortCode, client, clientAr, type, tracks, token, issuedAt: new Date().toISOString(), deleted: false, deletedAt: null });
+  serials.push({ id, shortCode, client, clientAr, type, token, issuedAt: new Date().toISOString(), deleted: false, deletedAt: null });
   saveSerials(serials);
 
   const shortcodeIndex = readJson(SHORTCODES_PATH, {});
@@ -94,8 +94,8 @@ async function cmdBulk(count) {
   }
 }
 
-async function cmdIssue({ client, clientAr, type, tracks }) {
-  const { link, shortCode, id } = await issueOne({ client, clientAr, type, tracks });
+async function cmdIssue({ client, clientAr, type }) {
+  const { link, shortCode, id } = await issueOne({ client, clientAr, type });
   console.log('\nتم الإصدار:\n');
   console.log(`الرابط: ${link}`);
   console.log(`الرمز القصير: ${shortCode}`);
@@ -211,7 +211,7 @@ async function main() {
     case 'new':
       return cmdBulk(rest[0]);
     case 'issue':
-      return cmdIssue({ client: flags.client || '', clientAr: flags['client-ar'] || '', type: flags.type || null, tracks: flags.tracks || null });
+      return cmdIssue({ client: flags.client || '', clientAr: flags['client-ar'] || '', type: flags.type || null });
     case 'list':
       return cmdList();
     case 'delete':
@@ -221,7 +221,7 @@ async function main() {
     case 'restore':
       return cmdRestore(rest[0]);
     default:
-      console.error(`أمر غير معروف: ${command}\nالأوامر المتاحة: init, bulk <n>, issue --client-ar <..> [--client <..>] [--type <..>] [--tracks <..>], list, delete <id> [--yes], list-deleted, restore <id>`);
+      console.error(`أمر غير معروف: ${command}\nالأوامر المتاحة: init, bulk <n>, issue --client-ar <..> [--client <..>] [--type <..>], list, delete <id> [--yes], list-deleted, restore <id>`);
       process.exitCode = 1;
   }
 }

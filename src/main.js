@@ -42,7 +42,6 @@ function applyTokenPrefill(data, preselectedProjectType) {
   // if both are present. Either way it's just a prefill: still an ordinary
   // editable field once inside the wizard (a1_project_type), never a lock.
   if (preselectedProjectType) prefill.project_type = preselectedProjectType;
-  if (data.tracks) prefill.tracks = data.tracks;
   // Not a real schema field — never shown as a question, never printed in
   // "all answers" tables — just carried along so generators can print it
   // (see xlsx.js banner), so a returned file says which link produced it.

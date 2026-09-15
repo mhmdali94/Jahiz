@@ -12,20 +12,22 @@ import { PROJECT_TYPES } from './constants.js';
 
 export * from './constants.js';
 
-// Mail projects have no "content" track — every Track B step's appliesTo
-// already excludes email_new/email_migration, so a mail client's `tracks`
-// answer (B-only, or never asked at all — see step0-start.js) can never
-// actually reveal any content steps anyway. Treating mail as always
-// effectively track A means a mail client's own technical steps (mailboxes,
-// migration access, …) show correctly regardless of what `tracks` holds or
-// whether it was ever answered.
+// Every step still carries a Track A/B label (see track-a.js / track-b.js)
+// from when clients picked "technical handover vs website content vs both"
+// at step0 — that question is gone now (removed on user feedback, both
+// halves always matter anyway), so both tracks are simply always on, except
+// for a mail project, which has no "content" track at all: every Track B
+// step's appliesTo already excludes email_new/email_migration, so nothing
+// there would ever show for a mail client regardless — this just also keeps
+// a mail client's own Track A steps (mailboxes, migration access, …)
+// unaffected by any of that.
 const MAIL_PROJECT_TYPES = [PROJECT_TYPES.EMAIL_NEW, PROJECT_TYPES.EMAIL_MIGRATION];
 
-// Order matters: this is the order steps appear in the sidebar/progress bar
-// whenever both tracks are selected. Track A goes first because it's usually
-// the more time-sensitive half (access expires, migrations have deadlines);
-// the shared steps land at the end since they only make sense once the
-// client has already described what's being built.
+// Order matters: this is the order steps appear in the sidebar/progress bar.
+// Track A goes first because it's usually the more time-sensitive half
+// (access expires, migrations have deadlines); the shared steps land at the
+// end since they only make sense once the client has already described
+// what's being built.
 export const STEPS = [step0Start, ...trackASteps, ...trackBSteps, ...sharedSteps];
 
 export function getStepById(id) {
@@ -40,16 +42,17 @@ export function getStepById(id) {
  * - "unsure" project type shows everything — branching needs a known type,
  *   so until one is picked (or if the client genuinely doesn't know) we
  *   show the full form rather than guessing wrong in either direction.
- * - A step only belonging to a track the client didn't pick is hidden even
- *   if its appliesTo/visibleWhen would otherwise pass.
+ * - A mail project only ever gets Track A (see MAIL_PROJECT_TYPES above);
+ *   everyone else gets both tracks — there's no longer a client-facing
+ *   choice to narrow that down.
  * - `visibleWhen`, when present, is an additional runtime condition (e.g.
  *   A5b also opens if a mailbox row gets marked "migrate" even for a
  *   project type that doesn't require it by default).
  */
 export function isStepVisible(step, answers) {
-  const { project_type, tracks } = answers;
+  const { project_type } = answers;
 
-  const effectiveTracks = MAIL_PROJECT_TYPES.includes(project_type) ? 'A' : tracks || '';
+  const effectiveTracks = MAIL_PROJECT_TYPES.includes(project_type) ? 'A' : 'AB';
   if (step.track && !effectiveTracks.includes(step.track)) return false;
 
   const typeOk = !project_type || project_type === 'unsure' || step.appliesTo.includes(project_type);

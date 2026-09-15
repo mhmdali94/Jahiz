@@ -23,7 +23,7 @@ function base64urlDecode(str) {
 }
 
 /**
- * @param {{ id: string, client: string, clientAr: string, type: string|null, tracks: string|null }} payload
+ * @param {{ id: string, client: string, clientAr: string, type: string|null }} payload
  * @param {string} privateKeyHex
  * @returns {Promise<string>} `<payload>.<signature>`, both base64url
  */

@@ -68,7 +68,7 @@ export function renderDraftPanel() {
     const currentFilled = summarizeAnsweredSteps(getAnswers());
     const importedFilled = summarizeAnsweredSteps(parsed.answers);
     // A fresh client's in-memory `answers` already has the token's own
-    // pre-fill (company name, tracks, type) before they've typed anything —
+    // pre-fill (company name, type) before they've typed anything —
     // that's never autosaved (no subscriber exists until the wizard shell
     // mounts), so checking the actual SAVED draft is what distinguishes
     // "genuinely fresh" from "already has real work" here.
@@ -94,7 +94,7 @@ export function renderDraftPanel() {
 
     if (!hasExistingWork) {
       // Nothing real to preserve yet — the token's own pre-fill (company
-      // name/tracks/type) is a convenience default, not the client's work,
+      // name/type) is a convenience default, not the client's work,
       // so the imported file should simply win outright here.
       await applyImport('replace');
       return;
