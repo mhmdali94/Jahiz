@@ -37,46 +37,89 @@ OpenLiteSpeed has enabled by default per-vhost. If your header somehow
 doesn't apply, check with your host that `.htaccess` overrides are allowed
 for the vhost.
 
-## Deploying with Docker
+## Deploying with Docker (auto-updating, behind Nginx Proxy Manager)
 
-An alternative to the CyberPanel/FTP flow above — a multi-stage build
-(`Dockerfile`) compiles the site with Node, then serves the plain static
-output with nginx. `.htaccess` is Apache-only and does nothing under
-nginx, so `nginx.conf` sets the same `Content-Security-Policy` header a
-different way; keep the two in sync if that policy ever changes.
+An alternative to the CyberPanel/FTP flow above, live at
+**jahiz.aathrconsult.com**. Three pieces:
 
-```bash
-docker compose up -d --build   # builds the image and starts it on :8080
-# or, without compose:
-docker build -t jahiz .
-docker run -d -p 8080:80 --name jahiz jahiz
-```
+1. **`Dockerfile`** — multi-stage build: compiles the site with Node, then
+   serves the plain static output with nginx. `.htaccess` is Apache-only and
+   does nothing under nginx, so `nginx.conf` sets the same
+   `Content-Security-Policy` header a different way — keep the two in sync
+   if that policy ever changes.
+2. **`.github/workflows/docker-publish.yml`** — on every push to `main`,
+   builds that image and pushes it to `ghcr.io/mhmdali94/jahiz:latest`.
+   This is the "auto" part: a `git push` is the entire deploy step, no SSH
+   access from GitHub to the server needed.
+3. **`docker-compose.yml`** — pulls that image and runs **Watchtower**
+   alongside it, which polls GHCR every 5 minutes and restarts the
+   container when a newer image shows up. This is what turns "a new image
+   exists on GHCR" into "the running site is actually updated."
 
-Open `http://localhost:8080` (or your server's address on port 8080) —
-you should land on the same "invalid link" screen you'd see on any fresh
-deploy, since no token is in the URL yet. To confirm the security header
-actually made it through:
-
-```bash
-curl -sI http://localhost:8080 | grep -i content-security-policy
-```
-
-**Issuing links still works the same way** (see below) — run
-`node cli/serial.js` locally, not inside the container; it only edits
-`src/shortcodes.json`/`cli/serials.json` on disk. The one thing that
-changes with Docker: a **long link** (`#t=...`) works the instant it's
-issued, no redeploy needed, but a **short code** is baked into the image
-at build time, so after issuing one you need to rebuild and restart the
-container for it to actually work:
+### One-time setup on the deploy host
 
 ```bash
-docker compose up -d --build
+git clone https://github.com/mhmdali94/Jahiz.git
+cd Jahiz
+docker compose up -d
 ```
 
-One more thing worth repeating from **Issuing a client link** below:
+That starts the site on **port 18432** (deliberately not 80/443/8080/3000 —
+see the comment in `docker-compose.yml` if it collides with something else
+on this host) and Watchtower alongside it. From here on, `git push` to
+`main` is all it takes to update the live site — nothing else to run on
+the server again.
+
+If `ghcr.io/mhmdali94/jahiz` ends up private (GitHub's default for a
+private repo), Watchtower needs credentials to pull it:
+`docker login ghcr.io -u mhmdali94` with a
+[PAT](https://github.com/settings/tokens) scoped to `read:packages`. Easier
+alternative: make the package public once — GitHub repo → **Packages** →
+`jahiz` → Package settings → Change visibility.
+
+### Pointing the domain at it (Nginx Proxy Manager)
+
+In NPM's UI, add a Proxy Host:
+
+- Domain: `jahiz.aathrconsult.com`
+- Forward to: this host's address, port `18432`
+- SSL tab: request a Let's Encrypt certificate, force SSL
+
+Confirm the security header survives the proxy hop:
+
+```bash
+curl -sI https://jahiz.aathrconsult.com | grep -i content-security-policy
+```
+
+### Local testing without any of the above
+
+`docker-compose.build.yml` builds straight from source instead of pulling
+from GHCR, so changes are testable before they're ever pushed:
+
+```bash
+docker compose -f docker-compose.build.yml up -d --build
+```
+
+### Issuing links
+
+Works the same as ever — run `node cli/serial.js` locally, not inside the
+container; it only edits `src/shortcodes.json`/`cli/serials.json` on disk.
+Once deployed, issue real client links against the real domain:
+
+```bash
+node cli/serial.js issue --client "..." --base-url "https://jahiz.aathrconsult.com"
+```
+
+One thing changes with this pipeline: a **long link** (`#t=...`) works the
+instant it's issued, no redeploy needed, but a **short code** is baked into
+`src/shortcodes.json` at *build* time — after issuing one, commit and push
+that file so the next GitHub Actions build (and the Watchtower pull that
+follows it) actually includes it.
+
 `cli/private.key` and `cli/serials.json` never get copied into the image
-(see `.dockerignore`), but they still live unencrypted on whatever machine
-runs the CLI — secure and back up that machine the same as before.
+(see `.dockerignore`) or committed (see `.gitignore`), but they still live
+unencrypted on whatever machine runs the CLI — secure and back up that
+machine the same as before.
 
 ## Issuing a client link
 

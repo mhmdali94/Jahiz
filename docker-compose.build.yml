@@ -1,0 +1,10 @@
+# Local-only variant of docker-compose.yml — builds straight from source
+# instead of pulling the published image, so changes are testable before
+# they're ever pushed to GitHub. Not what runs in production; that's
+# docker-compose.yml (pull + Watchtower), driven by the GitHub Actions build.
+services:
+  jahiz:
+    build: .
+    ports:
+      - "18432:80"
+    restart: unless-stopped

@@ -1,6 +1,29 @@
+# Pulls the image GitHub Actions publishes on every push (see
+# .github/workflows/docker-publish.yml) rather than building locally, so
+# Watchtower below can actually detect and apply new versions. For local
+# testing without any of that, `docker compose -f docker-compose.build.yml
+# up --build` still builds straight from source (see that file).
 services:
   jahiz:
-    build: .
+    image: ghcr.io/mhmdali94/jahiz:latest
+    # Deliberately not 80/443/8080/3000/etc. — this sits behind Nginx Proxy
+    # Manager, which reaches it at <this-host>:18432 and terminates the real
+    # jahiz.aathrconsult.com domain + TLS itself. Change the left-hand side
+    # if 18432 collides with something else on this host; the container's
+    # own port (right-hand side, 80) must stay as-is — nginx.conf listens on it.
     ports:
-      - "8080:80"
+      - "18432:80"
+    restart: unless-stopped
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+  # Polls ghcr.io for a newer `jahiz` image and restarts the container when
+  # one shows up — this is what makes a `git push` actually reach production.
+  # --label-enable scopes it to containers explicitly opted in above, so it
+  # won't touch anything else this host happens to run.
+  watchtower:
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --interval 300 --label-enable --cleanup
     restart: unless-stopped
