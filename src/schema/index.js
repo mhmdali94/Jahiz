@@ -8,8 +8,18 @@ import { step0Start } from './steps/step0-start.js';
 import { trackASteps } from './steps/track-a.js';
 import { trackBSteps } from './steps/track-b.js';
 import { sharedSteps } from './steps/shared-steps.js';
+import { PROJECT_TYPES } from './constants.js';
 
 export * from './constants.js';
+
+// Mail projects have no "content" track — every Track B step's appliesTo
+// already excludes email_new/email_migration, so a mail client's `tracks`
+// answer (B-only, or never asked at all — see step0-start.js) can never
+// actually reveal any content steps anyway. Treating mail as always
+// effectively track A means a mail client's own technical steps (mailboxes,
+// migration access, …) show correctly regardless of what `tracks` holds or
+// whether it was ever answered.
+const MAIL_PROJECT_TYPES = [PROJECT_TYPES.EMAIL_NEW, PROJECT_TYPES.EMAIL_MIGRATION];
 
 // Order matters: this is the order steps appear in the sidebar/progress bar
 // whenever both tracks are selected. Track A goes first because it's usually
@@ -39,7 +49,8 @@ export function getStepById(id) {
 export function isStepVisible(step, answers) {
   const { project_type, tracks } = answers;
 
-  if (step.track && !(tracks || '').includes(step.track)) return false;
+  const effectiveTracks = MAIL_PROJECT_TYPES.includes(project_type) ? 'A' : tracks || '';
+  if (step.track && !effectiveTracks.includes(step.track)) return false;
 
   const typeOk = !project_type || project_type === 'unsure' || step.appliesTo.includes(project_type);
   if (!typeOk) return false;

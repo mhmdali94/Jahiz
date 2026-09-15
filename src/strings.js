@@ -20,11 +20,13 @@ export const strings = {
 
   welcome: {
     taglineAr: 'نموذج تسليم بيانات المشاريع لعملاء جاهز',
-    servicesIntroAr: 'نقدّم خدمتين فقط:',
+    servicesIntroAr: 'اختر الخدمة المطلوبة',
     services: [
-      { titleAr: 'الموقع الإلكتروني', latin: 'Website', descAr: 'موقع جديد، إعادة تصميم، أو ترحيل من مزوّد آخر' },
-      { titleAr: 'البريد الإلكتروني', latin: 'Mail', descAr: 'إنشاء بريد جديد أو ترحيل بريد قائم' },
+      { key: 'website', titleAr: 'الموقع الإلكتروني', latin: 'Website', descAr: 'موقع جديد، إعادة تصميم، أو ترحيل من مزوّد آخر' },
+      { key: 'mail', titleAr: 'البريد الإلكتروني', latin: 'Mail', descAr: 'إنشاء بريد جديد أو ترحيل بريد قائم' },
     ],
+    changeSelectionAr: 'تغيير',
+    selectedServiceAr: 'الخدمة المختارة',
     loginPromptAr: 'أدخل الرمز الذي أرسلناه لكم للبدء',
     submitAr: 'دخول',
     codeErrorAr: 'الرمز غير صحيح. تأكد من كتابته كما وصلك تماماً.',
@@ -156,7 +158,7 @@ export const strings = {
     titleAr: 'ملفاتك جاهزة',
     zipCalloutAr: 'الصور موجودة في هذا الملف — أرسله مع المستند.',
     zipCalloutEn: 'The images live in this file — please send it with the document.',
-    docxFailedAr: 'تعذّر إنشاء ملف الوورد. باقي الملفات جاهزة، والإكسل يحتوي المعلومات نفسها.',
+    xlsxFailedAr: 'تعذّر إنشاء ملف الإكسل. باقي الملفات جاهزة — حاول الضغط على "مراجعة وإنشاء الملفات" مرة أخرى.',
     versionLabelAr: 'نسخة {version} — تم الإنشاء في {date}',
     downloadAllAr: 'تحميل الكل',
   },

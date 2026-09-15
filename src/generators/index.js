@@ -41,6 +41,11 @@ export async function generateAllFiles(answers) {
     triggerDownload(blob, filename);
     result.xlsx = { filename, size: blob.size };
   } catch (err) {
+    // The client-facing banner deliberately stays generic (no stack trace on
+    // a screen a non-technical client is looking at) — but that meant the
+    // real cause was going nowhere at all, not even to devtools. Logging it
+    // here doesn't change what the client sees, just what's diagnosable.
+    console.error('Jahiz: xlsx generation failed —', err);
     result.errors.push({ type: 'xlsx', message: String(err?.message || err) });
   }
 
@@ -53,6 +58,7 @@ export async function generateAllFiles(answers) {
       result.zip = { filename, size: zipResult.blob.size, imageCount: zipResult.imageCount };
     }
   } catch (err) {
+    console.error('Jahiz: zip generation failed —', err);
     result.errors.push({ type: 'zip', message: String(err?.message || err) });
   }
 

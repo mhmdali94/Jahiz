@@ -21,6 +21,14 @@ const FIELD_TYPES_TABLE = 'table';
 let root;
 let currentStepIndex = 0; // index into getVisibleSteps(answers), recomputed each render
 let showingReview = false;
+// project_type can already be decided before the wizard ever starts — a link
+// issued with --type, or the client's own pick on the welcome screen — in
+// which case landing on a1_project_type to ask it again reads as a bug, not
+// a confirmation. Auto-skip past it the first time forward navigation would
+// land there with an answer already in place; it stays reachable afterward
+// (sidebar, Back) for anyone who wants to change their mind — this only
+// affects the one automatic first pass, never removes the step itself.
+let skippedProjectTypeStep = false;
 let fieldNodes = []; // rendered field wrappers for the current step, for refreshVisibility()
 let expandedChapters = new Set(); // chapter ids the client opened by hand — the active chapter is always shown regardless
 
@@ -363,8 +371,21 @@ function validateStep(step) {
 function go(direction) {
   saveNow(getAnswers());
   currentStepIndex += direction;
+  if (direction === 1) maybeAutoSkipProjectTypeStep();
   render();
   focusStepHeader();
+}
+
+function maybeAutoSkipProjectTypeStep() {
+  if (skippedProjectTypeStep) return;
+  const answers = getAnswers();
+  const visibleSteps = getVisibleSteps(answers);
+  const step = visibleSteps[currentStepIndex];
+  if (!step || step.id !== 'a1_project_type') return;
+  if (answers.project_type && answers.project_type !== 'unsure') {
+    currentStepIndex += 1;
+    skippedProjectTypeStep = true;
+  }
 }
 
 function jumpToStep(stepId) {

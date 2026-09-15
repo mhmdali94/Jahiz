@@ -37,10 +37,14 @@ import {
 
 // ---------------------------------------------------------------------------
 // A1 — نوع المشروع (Project type)
+// `track: null` deliberately — this decides EVERYTHING downstream (which
+// track A/B steps even apply), so it can't be gated behind track 'A' itself.
+// A client who only picked "محتوى الموقع" (track B) at step0 must still be
+// asked this, or project_type stays unset for their whole session.
 // ---------------------------------------------------------------------------
 export const stepA1ProjectType = {
   id: 'a1_project_type',
-  track: 'A',
+  track: null,
   titleAr: 'نوع المشروع',
   titleEn: 'Project type',
   appliesTo: ['new', 'migration', 'redesign', 'email_new', 'email_migration'],

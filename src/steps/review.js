@@ -305,7 +305,7 @@ function renderDownloadScreen(result, answers) {
       ]),
     );
   } else {
-    files.appendChild(el('div', { class: 'download-file download-file--error' }, strings.generatedFiles.docxFailedAr));
+    files.appendChild(el('div', { class: 'download-file download-file--error' }, strings.generatedFiles.xlsxFailedAr));
   }
 
   const pdfBtn = el('button', {
